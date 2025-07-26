@@ -1,3 +1,19 @@
+# Função para desinstalar o Puro
+uninstall_puro() {
+    show_header
+    printf "%b\n" "${RED}Desinstalar Puro:${NC}"
+    printf "%b\n" "Isso irá remover o binário do Puro e a linha do PATH do ~/.zshrc."
+    read -p "Tem certeza que deseja desinstalar o Puro? (s/N): " confirm
+    if [[ "$confirm" =~ ^[sS]$ ]]; then
+        rm -rf "$HOME/.puro"
+        sed -i '' '/export PATH=\"\$HOME\/\.puro\/bin:\$PATH\"/d' ~/.zshrc
+        printf "%b\n" "${GREEN}Puro desinstalado com sucesso!${NC}"
+    else
+        printf "%b\n" "${YELLOW}Desinstalação cancelada.${NC}"
+    fi
+    printf "%b\n" "${YELLOW}Pressione Enter para voltar...${NC}"
+    read
+}
 #!/bin/bash
 
 # Cores para menus
@@ -21,15 +37,16 @@ show_header() {
 
 # Função para instalar o Puro
 install_puro() {
-    if ! command -v puro &> /dev/null; then
-        printf "%b\n" "${YELLOW}Puro não encontrado. Instalando...${NC}"
-        curl -fsSL https://puro.dev/install.sh | bash
-        export PATH="$HOME/.puro/bin:$PATH"
+    show_header
+    printf "%b\n" "${YELLOW}Instalando ou atualizando Puro...${NC}"
+    curl -fsSL https://puro.dev/install.sh | bash
+    export PATH="$HOME/.puro/bin:$PATH"
+    if ! grep -q 'export PATH="$HOME/.puro/bin:$PATH"' ~/.zshrc; then
         echo 'export PATH="$HOME/.puro/bin:$PATH"' >> ~/.zshrc
-        printf "%b\n" "${GREEN}Puro instalado com sucesso!${NC}"
-    else
-        printf "%b\n" "${GREEN}Puro já está instalado.${NC}"
     fi
+    printf "%b\n" "${GREEN}Puro instalado ou atualizado com sucesso!${NC}"
+    printf "%b\n" "${YELLOW}Pressione Enter para voltar...${NC}"
+    read
 }
 
 # Função para listar ambientes
@@ -172,6 +189,7 @@ use_flutter_global() {
     versions=()
     versions_display=()
     installed=()
+    # Coleta versões disponíveis
     while IFS= read -r linha; do
         clean=$(echo "$linha" | sed 's/\x1b\[[0-9;]*m//g')
         if [[ "$clean" =~ ^[[:space:]]*Flutter[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+[^ ]*) ]]; then
@@ -179,20 +197,37 @@ use_flutter_global() {
             versions+=("$versao")
         fi
     done <<< "$(puro ls-versions)"
-    # Coleta instalados
+    # Descobre qual versão é a stable
+    stable_version=""
+    while IFS= read -r linha; do
+        clean=$(echo "$linha" | sed 's/\x1b\[[0-9;]*m//g')
+        if [[ "$clean" =~ ^[[:space:]]*stable[[:space:]] ]]; then
+            stable_version=$(echo "$clean" | grep -oE '\([0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?' | head -n1 | tr -d '(')
+            break
+        fi
+    done <<< "$(puro ls)"
+    # Coleta todos ambientes instalados (nomeados e numéricos)
     while IFS= read -r linha; do
         clean=$(echo "$linha" | sed 's/\x1b\[[0-9;]*m//g')
         nome=$(echo "$clean" | awk '{print $1}')
-        if [[ "$nome" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            installed+=("$nome")
+        versao=$(echo "$clean" | grep -oE '\([0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?' | head -n1 | tr -d '(')
+        if [ -z "$versao" ]; then
+            versao=$(echo "$clean" | awk '{for(i=2;i<=NF;i++) if($i ~ /^[0-9]+\.[0-9]+\.[0-9]+/) {print $i; break}}')
+        fi
+        if [ -n "$versao" ]; then
+            installed+=("$versao")
         fi
     done <<< "$(puro ls)"
     for i in "${!versions[@]}"; do
         idx=$((i+1))
+        label="${versions[$i]}"
+        if [ -n "$stable_version" ] && [ "${versions[$i]}" = "$stable_version" ]; then
+            label+=" ${YELLOW}[stable]${NC}"
+        fi
         if printf '%s\n' "${installed[@]}" | grep -Fxq "${versions[$i]}"; then
-            versions_display+=("  $idx) ${GREEN}${versions[$i]} [instalado]${NC}")
+            versions_display+=("  $idx) ${GREEN}$label [instalado]${NC}")
         else
-            versions_display+=("  $idx) ${YELLOW}${versions[$i]}${NC}")
+            versions_display+=("  $idx) ${YELLOW}$label${NC}")
         fi
     done
     for line in "${versions_display[@]}"; do
@@ -243,8 +278,12 @@ use_flutter_project() {
     while IFS= read -r linha; do
         clean=$(echo "$linha" | sed 's/\x1b\[[0-9;]*m//g')
         nome=$(echo "$clean" | awk '{print $1}')
-        if [[ "$nome" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            installed+=("$nome")
+        versao=$(echo "$clean" | grep -oE '\([0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?' | head -n1 | tr -d '(')
+        if [ -z "$versao" ]; then
+            versao=$(echo "$clean" | awk '{for(i=2;i<=NF;i++) if($i ~ /^[0-9]+\.[0-9]+\.[0-9]+/) {print $i; break}}')
+        fi
+        if [ -n "$versao" ]; then
+            installed+=("$versao")
         fi
     done <<< "$(puro ls)"
     for i in "${!versions[@]}"; do
@@ -301,69 +340,47 @@ remove_flutter_version() {
     printf "%b\n" "${BLUE}Selecione o ambiente do Flutter para remover:${NC}"
     menu_items=()
     menu_names=()
-    versoes=()
-    nomeados=()
-    # Coleta ambientes e versões
+    # Parse puro ls para listar ambientes igual ao output real, ignorando linhas de dica/uso
+    # Descobre qual ambiente é o stable (nome exato ou alias)
+    stable_env=""
     while IFS= read -r linha; do
         clean=$(echo "$linha" | sed 's/\x1b\[[0-9;]*m//g')
-        if echo "$clean" | grep -qE '^[[:space:]]+'; then
+        if [[ "$clean" =~ ^[[:space:]]*stable[[:space:]] ]]; then
+            stable_env="stable"
+            break
+        fi
+    done <<< "$(puro ls)"
+
+    while IFS= read -r linha; do
+        clean=$(echo "$linha" | sed 's/\x1b\[[0-9;]*m//g')
+        # Ignora linhas vazias e linhas de dica/uso (começam com 'Use' ou espaços + 'Use')
+        if [[ -z "$clean" ]] || [[ "$clean" =~ ^[[:space:]]*Use ]]; then
+            continue
+        fi
+        # Ambiente atual (linha começa com ~)
+        if [[ "$clean" =~ ^[[:space:]]*~ ]]; then
+            nome=$(echo "$clean" | awk '{print $2}')
+            info=$(echo "$clean" | sed -E 's/^[^\(]*\(([^)]*)\).*/\1/')
+            label="~ $nome ($info)"
+            if [[ "$nome" == "$stable_env" ]]; then
+                label+=" ${YELLOW}[stable]${NC}"
+            fi
+            menu_items+=("$label")
+            menu_names+=("$nome")
+        # Ambiente instalado (linha começa com espaço + nome)
+        elif [[ "$clean" =~ ^[[:space:]]+[a-zA-Z0-9._-]+ ]]; then
             nome=$(echo "$clean" | awk '{print $1}')
-            nome=$(echo "$nome" | sed 's/^~//;s/^ *//;s/ *$//')
-            versao=$(echo "$clean" | grep -oE '\([0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?' | head -n1 | tr -d '(')
-            if [ -z "$versao" ]; then
-                versao=$(echo "$clean" | awk '{for(i=2;i<=NF;i++) if($i ~ /^[0-9]+\.[0-9]+\.[0-9]+/) {print $i; break}}')
-            fi
-            if [ -z "$nome" ] || [ -z "$versao" ] || [ "$nome" = "Use" ]; then
-                continue
-            fi
-            # Se nome é numérico igual à versão, é só versão, senão é nomeado (ex: stable)
-            if [[ "$nome" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && [ "$nome" = "$versao" ]; then
-                versoes+=("$nome|$versao")
-            else
-                nomeados+=("$nome|$versao")
+            info=$(echo "$clean" | sed -E 's/^[^\(]*\(([^)]*)\).*/\1/')
+            if [[ "$info" != "not installed" && -n "$info" ]]; then
+                label="$nome ($info)"
+                if [[ "$nome" == "$stable_env" ]]; then
+                    label+=" ${YELLOW}[stable]${NC}"
+                fi
+                menu_items+=("$label")
+                menu_names+=("$nome")
             fi
         fi
     done <<< "$(puro ls)"
-    # Ordena nomeados por nome
-    if [ ${#nomeados[@]} -gt 0 ]; then
-        IFS=$'\n' nomeados_sorted=($(printf '%s\n' "${nomeados[@]}" | sort))
-        for linha in "${nomeados_sorted[@]}"; do
-            n=$(echo "$linha" | cut -d'|' -f1)
-            v=$(echo "$linha" | cut -d'|' -f2)
-            menu_items+=("$n ($v)")
-            menu_names+=("$n")
-        done
-    fi
-    # Ordena versões numéricas por semver decrescente (mais recente primeiro)
-    if [ ${#versoes[@]} -gt 0 ]; then
-        versoes_nomes=()
-        versoes_versoes=()
-        for linha in "${versoes[@]}"; do
-            n=$(echo "$linha" | cut -d'|' -f1)
-            v=$(echo "$linha" | cut -d'|' -f2)
-            versoes_nomes+=("$n")
-            versoes_versoes+=("$v")
-        done
-        IFS=$'\n' versoes_sorted=($(printf '%s\n' "${versoes_nomes[@]}" | sort -V -r))
-        for n in "${versoes_sorted[@]}"; do
-            # Busca o índice do nome para pegar a versão correspondente
-            idx=-1
-            for i in "${!versoes_nomes[@]}"; do
-                if [ "${versoes_nomes[$i]}" = "$n" ]; then
-                    idx=$i
-                    break
-                fi
-            done
-            if [ $idx -ge 0 ]; then
-                v="${versoes_versoes[$idx]}"
-                # Evita duplicatas se já foi listado como nomeado
-                if [[ ! " ${menu_names[@]} " =~ " $n " ]]; then
-                    menu_items+=("$n ($v)")
-                    menu_names+=("$n")
-                fi
-            fi
-        done
-    fi
     if [ ${#menu_items[@]} -eq 0 ]; then
         printf "%b\n" "${RED}Nenhum ambiente encontrado para remoção.${NC}"
         read -p "Pressione Enter para voltar..."
@@ -451,7 +468,6 @@ clean_caches() {
 
 # Menu principal
 main() {
-    install_puro
     while true; do
         show_header
         printf "%b\n" "${BLUE}Selecione uma opção:${NC}"
@@ -460,6 +476,7 @@ main() {
         printf "%b\n" "  3) ${GREEN}Remover versão do Flutter${NC}"
         printf "%b\n" "  4) ${GREEN}Atualizar Puro${NC}"
         printf "%b\n" "  5) ${GREEN}Limpar caches${NC}"
+        printf "%b\n" "  6) ${YELLOW}Gerenciar Puro (instalar/desinstalar)${NC}"
         printf "%b\n" "  0) ${RED}Sair${NC}"
         while true; do
             read -p "Digite o número da opção desejada: " opt
@@ -469,8 +486,25 @@ main() {
                 3) remove_flutter_version; break ;;
                 4) upgrade_puro; break ;;
                 5) clean_caches; break ;;
+                6)
+                    while true; do
+                        show_header
+                        printf "%b\n" "${YELLOW}Gerenciar Puro:${NC}"
+                        printf "%b\n" "  1) Instalar ou atualizar Puro"
+                        printf "%b\n" "  2) Desinstalar Puro"
+                        printf "%b\n" "  0) Voltar"
+                        read -p "Digite o número da opção desejada: " puro_opt
+                        case $puro_opt in
+                            1) install_puro; break ;;
+                            2) uninstall_puro; break ;;
+                            0) break ;;
+                            *) printf "%b\n" "${RED}Opção inválida. Digite 0, 1 ou 2.${NC}" ;;
+                        esac
+                    done
+                    break
+                    ;;
                 0) printf "%b\n" "${RED}Saindo...${NC}"; exit 0 ;;
-                *) printf "%b\n" "${RED}Opção inválida. Digite um número de 0 a 5.${NC}" ;;
+                *) printf "%b\n" "${RED}Opção inválida. Digite um número de 0 a 6.${NC}" ;;
             esac
         done
     done
