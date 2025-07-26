@@ -275,6 +275,15 @@ use_flutter_global() {
             printf "%b\n" "${RED}Digite apenas números.${NC}"
         fi
     done
+    # Recarrega o ambiente automaticamente
+    if [ -f "$HOME/.puro/env" ]; then
+        printf "%b\n" "${CYAN}Recarregando ambiente do Flutter (source ~/.puro/env)...${NC}"
+        # shellcheck source=/dev/null
+        source "$HOME/.puro/env"
+        printf "%b\n" "${GREEN}Ambiente recarregado!${NC}"
+    else
+        printf "%b\n" "${YELLOW}Arquivo ~/.puro/env não encontrado. Abra um novo terminal se necessário.${NC}"
+    fi
     printf "%b\n" "${YELLOW}Pressione Enter para voltar...${NC}"
     read
 }
@@ -352,6 +361,15 @@ use_flutter_project() {
             printf "%b\n" "${RED}Digite apenas números.${NC}"
         fi
     done
+    # Recarrega o ambiente automaticamente
+    if [ -f "$HOME/.puro/env" ]; then
+        printf "%b\n" "${CYAN}Recarregando ambiente do Flutter (source ~/.puro/env)...${NC}"
+        # shellcheck source=/dev/null
+        source "$HOME/.puro/env"
+        printf "%b\n" "${GREEN}Ambiente recarregado!${NC}"
+    else
+        printf "%b\n" "${YELLOW}Arquivo ~/.puro/env não encontrado. Abra um novo terminal se necessário.${NC}"
+    fi
     printf "%b\n" "${YELLOW}Pressione Enter para voltar...${NC}"
     read
 }
@@ -508,13 +526,13 @@ main() {
     while true; do
         show_header
         printf "%b\n" "${BLUE}Selecione uma opção:${NC}"
-        printf "%b\n" "  1) ${GREEN}Usar versão global do Flutter${NC}"
-        printf "%b\n" "  2) ${GREEN}Usar versão do Flutter neste projeto${NC}"
-        printf "%b\n" "  3) ${GREEN}Remover versão do Flutter${NC}"
-        printf "%b\n" "  4) ${GREEN}Atualizar Puro${NC}"
-        printf "%b\n" "  5) ${GREEN}Limpar caches${NC}"
-        printf "%b\n" "  6) ${YELLOW}Gerenciar Puro (instalar/desinstalar)${NC}"
-        printf "%b\n" "  0) ${RED}Sair${NC}"
+        printf "%b\n" "   1) 🌍 ${GREEN}Usar versão do Flutter Globalmente${NC}"
+        printf "%b\n" "   2) 📁 ${GREEN}Usar versão do Flutter apenas neste projeto${NC}"
+        printf "%b\n" "   3) 🗑️  ${GREEN}Remover versão do Flutter${NC}"
+        printf "%b\n" "   4) ⬆️  ${GREEN}Atualizar Puro${NC}"
+        printf "%b\n" "   5) 🧹 ${GREEN}Limpar caches${NC}"
+        printf "%b\n" "   6) 🛠️  ${YELLOW}Gerenciar Puro (instalar/desinstalar)${NC}"
+        printf "%b\n" "   0) 🚪 ${RED}Sair${NC}"
         while true; do
             read -p "Digite o número da opção desejada: " opt
             case $opt in
