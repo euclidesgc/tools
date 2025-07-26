@@ -1,12 +1,26 @@
 #!/usr/bin/env bash
 
 # Cores para a interface
-RED='\033[0;31m'
-GREEN='\033[0;32m'
+RED='\033[1;31m'
+GREEN='\033[1;32m'
 YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
+BLUE='\033[1;34m'
+CYAN='\033[1;36m'
+MAGENTA='\033[1;35m'
+WHITE='\033[1;37m'
 NC='\033[0m' # Sem Cor
+
+# Emojis
+EMOJI_FLUTTER="🎯"
+EMOJI_OK="✅"
+EMOJI_WARN="⚠️"
+EMOJI_ERROR="❌"
+EMOJI_INSTALL="⬇️"
+EMOJI_REMOVE="🗑️"
+EMOJI_UPDATE="🔄"
+EMOJI_CLEAN="🧹"
+EMOJI_GEAR="⚙️"
+EMOJI_EXIT="🚪"
 
 # Função para verificar se o 'puro' está instalado
 check_puro_installed() {
@@ -21,17 +35,17 @@ check_puro_installed() {
 # Função para exibir o cabeçalho
 show_header() {
     clear
-    printf "%b\n" "${CYAN}╔═══════════════════════════════════════════════════════════════╗${NC}"
-    printf "%b\n" "${CYAN}║                   ${YELLOW}PURO Manager - Flutter Env${CYAN}                  ║${NC}"
-    printf "%b\n" "${CYAN}║      ${GREEN}Gerencie seus ambientes Flutter com mais facilidade${CYAN}      ║${NC}"
-    printf "%b\n" "${CYAN}╚═══════════════════════════════════════════════════════════════╝${NC}"
+    printf "%b\n" "${CYAN}╔══════════════════════════════════════════════════════════╗${NC}"
+    printf "%b\n" "${CYAN}║         ${EMOJI_FLUTTER}  ${YELLOW}PURO Manager - Flutter Env${CYAN}  ${EMOJI_FLUTTER}               ║${NC}"
+    printf "%b\n" "${CYAN}║   ${GREEN}Gerencie seus ambientes Flutter com mais facilidade${CYAN}    ║${NC}"
+    printf "%b\n" "${CYAN}╚══════════════════════════════════════════════════════════╝${NC}"
     echo
 }
 
 # Função para aguardar o usuário pressionar Enter
 wait_for_enter() {
     echo
-    read -p "$(printf "%b" "${YELLOW}Pressione Enter para voltar ao menu...${NC}")"
+    read -p "$(printf "%b" "${YELLOW}Pressione Enter para voltar ao menu... ${EMOJI_GEAR}${NC}")"
 }
 
 #-------------------------------------------------------------------------------
@@ -43,7 +57,7 @@ create_installation_menu() {
 
     while true; do
         show_header
-        printf "%b\n" "${BLUE}${title}${NC}"
+        printf "%b\n" "${MAGENTA}${EMOJI_INSTALL} ${title}${NC}"
 
         local instalados=()
         while IFS= read -r line; do
@@ -69,10 +83,10 @@ create_installation_menu() {
                     break
                 fi
             done
-            printf "  ${YELLOW}%2d)${NC} Flutter %s%b\n" "$((i+1))" "$versao" "$status"
+            printf "  ${YELLOW}%2d)${NC} ${EMOJI_FLUTTER} Flutter %s%b\n" "$((i+1))" "$versao" "$status"
             opcoes+=("$versao")
         done
-        printf "   ${RED}0)${NC} Voltar\n"
+        printf "   ${RED}0)${NC} ${EMOJI_EXIT} Voltar\n"
 
         echo
         read -p "Digite o número da versão para instalar: " escolha
@@ -86,12 +100,12 @@ create_installation_menu() {
             local versao_selecionada="${opcoes[$idx]}"
             local nome_env=${versao_selecionada}
 
-            printf "\n%b\n" "${CYAN}Instalando Flutter ${versao_selecionada} no ambiente '${nome_env}'...${NC}"
+            printf "\n%b\n" "${CYAN}${EMOJI_INSTALL} Instalando Flutter ${versao_selecionada} no ambiente '${nome_env}'...${NC}"
             puro create "$nome_env" "$versao_selecionada"
-            printf "\n%b\n" "${GREEN}Ambiente '${nome_env}' criado com sucesso!${NC}"
+            printf "\n%b\n" "${GREEN}${EMOJI_OK} Ambiente '${nome_env}' criado com sucesso!${NC}"
             wait_for_enter
         else
-            printf "\n%b\n" "${RED}Opção inválida. Tente novamente.${NC}"
+            printf "\n%b\n" "${RED}${EMOJI_ERROR} Opção inválida. Tente novamente.${NC}"
             sleep 2
         fi
     done
@@ -101,10 +115,11 @@ create_installation_menu() {
 menu_instalar_versoes() {
     while true; do
         show_header
-        printf "%b\n" "${BLUE}Qual canal você deseja listar?${NC}"
-        printf "  ${YELLOW}1)${NC} Versões do canal ${GREEN}STABLE${NC}\n"
-        printf "  ${YELLOW}2)${NC} Versões do canal ${CYAN}BETA${NC}\n"
-        printf "  ${RED}0)${NC} Voltar ao menu principal\n"
+        printf "%b\n" "${BLUE}${EMOJI_FLUTTER} Qual canal você deseja listar?${NC}"
+        echo
+        printf "  ${GREEN}1)${NC} ${EMOJI_OK}  Versões do canal ${GREEN}STABLE${NC}\n"
+        printf "  ${CYAN}2)${NC} ${EMOJI_WARN}   Versões do canal ${CYAN}BETA${NC}\n"
+        printf "  ${RED}0)${NC} ${EMOJI_EXIT}  Voltar ao menu principal\n"
         echo
         read -p "Digite a opção desejada: " escolha_canal
 
@@ -119,7 +134,7 @@ menu_instalar_versoes() {
                 return
                 ;;
             *)
-                printf "\n%b\n" "${RED}Opção inválida. Tente novamente.${NC}"
+                printf "\n%b\n" "${RED}${EMOJI_ERROR} Opção inválida. Tente novamente.${NC}"
                 sleep 2
                 ;;
         esac
@@ -133,7 +148,8 @@ menu_instalar_versoes() {
 menu_gerenciar_instaladas() {
     while true; do
         show_header
-        printf "%b\n" "${BLUE}Selecione um ambiente para gerenciar:${NC}"
+        printf "%b\n" "${BLUE}${EMOJI_GEAR}  Selecione um ambiente para gerenciar:${NC}"
+        echo
 
         local lines=()
         while IFS= read -r line; do
@@ -141,7 +157,7 @@ menu_gerenciar_instaladas() {
         done < <(puro ls | sed 's/\x1b\[[0-9;]*m//g' | grep -E "^\s*(~|\*)?\s*[a-zA-Z0-9].*\s+\(")
 
         if [ ${#lines[@]} -eq 0 ]; then
-            printf "\n%b\n" "${YELLOW}Nenhum ambiente Flutter encontrado.${NC}"
+            printf "\n%b\n" "${YELLOW}${EMOJI_WARN} Nenhum ambiente Flutter encontrado.${NC}"
             wait_for_enter
             return
         fi
@@ -168,10 +184,10 @@ menu_gerenciar_instaladas() {
                 status_texto=" [Não Instalado]"
             fi
 
-            printf "  ${YELLOW}%2d)${NC} %b%s%b\n" "$((i+1))" "$status_cor" "$linha_original" "$status_texto"
+            printf "  ${YELLOW}%2d)${NC} ${EMOJI_FLUTTER} %b%s%b\n" "$((i+1))" "$status_cor" "$linha_original" "$status_texto"
             ambientes_selecionaveis+=("$nome_ambiente")
         done
-        printf "   ${RED}0)${NC} Voltar ao menu principal\n"
+        printf "   ${RED}0)${NC} ${EMOJI_EXIT} Voltar ao menu principal\n"
 
         echo
         read -p "Digite o número do ambiente: " escolha
@@ -186,53 +202,54 @@ menu_gerenciar_instaladas() {
             local linha_selecionada="${lines[$idx]}"
 
             if [[ "$linha_selecionada" =~ 'not installed' ]]; then
-                 read -p "$(printf "%b" "${YELLOW}O ambiente '${env_selecionado}' não está instalado. Deseja instalar agora? (s/N): ${NC}")" confirm
+                 read -p "$(printf "%b" "${YELLOW}${EMOJI_WARN} O ambiente '${env_selecionado}' não está instalado. Deseja instalar agora? (s/N): ${NC}")" confirm
                  if [[ "$confirm" =~ ^[sS]$ ]]; then
-                     printf "\n%b\n" "${CYAN}Instalando Flutter ${env_selecionado}...${NC}"
+                     printf "\n%b\n" "${CYAN}${EMOJI_INSTALL} Instalando Flutter ${env_selecionado}...${NC}"
                      puro create "$env_selecionado"
-                     printf "\n%b\n" "${GREEN}Ambiente '${env_selecionado}' instalado com sucesso!${NC}"
+                     printf "\n%b\n" "${GREEN}${EMOJI_OK} Ambiente '${env_selecionado}' instalado com sucesso!${NC}"
                      wait_for_enter
                  fi
                  continue
             fi
 
             show_header
-            printf "%b\n" "${BLUE}O que você deseja fazer com o ambiente '${YELLOW}${env_selecionado}${BLUE}'?${NC}"
-            printf "  ${YELLOW}1)${NC} Definir como global\n"
-            printf "  ${YELLOW}2)${NC} Usar no projeto atual\n"
-            printf "  ${RED}3)${NC} Remover este ambiente\n"
-            printf "  ${RED}0)${NC} Voltar\n"
+            printf "%b\n" "${BLUE}${EMOJI_GEAR}  O que você deseja fazer com o ambiente '${YELLOW}${env_selecionado}${BLUE}'?${NC}"
+            echo
+            printf "  ${YELLOW}1)${NC} ${EMOJI_OK}  Definir como global\n"
+            printf "  ${YELLOW}2)${NC} ${EMOJI_FLUTTER}  Usar no projeto atual\n"
+            printf "  ${RED}3)${NC} ${EMOJI_REMOVE}   Remover este ambiente\n"
+            printf "  ${RED}0)${NC} ${EMOJI_EXIT}  Voltar\n"
 
             read -p "Escolha uma ação: " acao
             case $acao in
                 1)
-                    printf "\n%b\n" "${CYAN}Definindo '${env_selecionado}' como global...${NC}"
+                    printf "\n%b\n" "${CYAN}${EMOJI_OK} Definindo '${env_selecionado}' como global...${NC}"
                     puro use "$env_selecionado" --global
-                    printf "\n%b\n" "${GREEN}Feito!${NC}"
+                    printf "\n%b\n" "${GREEN}${EMOJI_OK} Feito!${NC}"
                     ;;
                 2)
-                    printf "\n%b\n" "${CYAN}Usando '${env_selecionado}' no projeto atual...${NC}"
+                    printf "\n%b\n" "${CYAN}${EMOJI_FLUTTER} Usando '${env_selecionado}' no projeto atual...${NC}"
                     puro use "$env_selecionado"
-                    printf "\n%b\n" "${GREEN}Feito!${NC}"
+                    printf "\n%b\n" "${GREEN}${EMOJI_OK} Feito!${NC}"
                     ;;
                 3)
-                    read -p "$(printf "%b" "${RED}Tem certeza que deseja remover o ambiente '${env_selecionado}'? (s/N): ${NC}")" confirm
+                    read -p "$(printf "%b" "${RED}${EMOJI_REMOVE} Tem certeza que deseja remover o ambiente '${env_selecionado}'? (s/N): ${NC}")" confirm
                     if [[ "$confirm" =~ ^[sS]$ ]]; then
-                        printf "\n%b\n" "${CYAN}Removendo ambiente...${NC}"
+                        printf "\n%b\n" "${CYAN}${EMOJI_REMOVE} Removendo ambiente...${NC}"
                         puro rm "$env_selecionado" -f
-                        printf "\n%b\n" "${GREEN}Ambiente removido!${NC}"
+                        printf "\n%b\n" "${GREEN}${EMOJI_OK} Ambiente removido!${NC}"
                     else
-                        printf "\n%b\n" "${YELLOW}Remoção cancelada.${NC}"
+                        printf "\n%b\n" "${YELLOW}${EMOJI_WARN} Remoção cancelada.${NC}"
                     fi
                     ;;
                 0)
                     continue ;;
                 *)
-                    printf "\n%b\n" "${RED}Ação inválida.${NC}" ;;
+                    printf "\n%b\n" "${RED}${EMOJI_ERROR} Ação inválida.${NC}" ;;
             esac
             wait_for_enter
         else
-            printf "\n%b\n" "${RED}Opção inválida. Tente novamente.${NC}"
+            printf "\n%b\n" "${RED}${EMOJI_ERROR} Opção inválida. Tente novamente.${NC}"
             sleep 2
         fi
     done
@@ -245,13 +262,13 @@ menu_gerenciar_instaladas() {
 menu_gerenciar_puro() {
     while true; do
         show_header
-        printf "%b\n" "${BLUE}Gerenciar Puro:${NC}"
-        printf "  ${YELLOW}1)${NC} Atualizar o Puro\n"
-        printf "  ${RED}2)${NC} Desinstalar o Puro\n"
-        printf "  ${CYAN}3)${NC} Checar versão do Puro\n"
-        printf "  ${YELLOW}4)${NC} Limpar caches não usados (gc)\n"
-        printf "  ${YELLOW}5)${NC} Limpar configuração do projeto atual (clean)\n"
-        printf "  ${RED}0)${NC} Voltar ao menu principal\n"
+        printf "%b\n" "${BLUE}${EMOJI_GEAR} Gerenciar Puro:${NC}"
+        printf "  ${YELLOW}1)${NC} ${EMOJI_UPDATE} Atualizar o Puro\n"
+        printf "  ${RED}2)${NC} ${EMOJI_REMOVE} Desinstalar o Puro\n"
+        printf "  ${CYAN}3)${NC} ${EMOJI_GEAR} Checar versão do Puro\n"
+        printf "  ${YELLOW}4)${NC} ${EMOJI_CLEAN} Limpar caches não usados (gc)\n"
+        printf "  ${YELLOW}5)${NC} ${EMOJI_CLEAN} Limpar configuração do projeto atual (clean)\n"
+        printf "  ${RED}0)${NC} ${EMOJI_EXIT} Voltar ao menu principal\n"
 
         echo
         read -p "Digite o número da opção desejada: " escolha
@@ -259,48 +276,48 @@ menu_gerenciar_puro() {
         case $escolha in
             1)
                 show_header
-                printf "%b\n" "${CYAN}Atualizando Puro...${NC}"
+                printf "%b\n" "${CYAN}${EMOJI_UPDATE} Atualizando Puro...${NC}"
                 puro upgrade-puro
-                printf "\n%b\n" "${GREEN}Puro atualizado!${NC}"
+                printf "\n%b\n" "${GREEN}${EMOJI_OK} Puro atualizado!${NC}"
                 wait_for_enter
                 ;;
             2)
                 show_header
-                read -p "$(printf "%b" "${RED}TEM CERTEZA que deseja desinstalar o Puro do seu sistema? (s/N): ${NC}")" confirm
+                read -p "$(printf "%b" "${RED}${EMOJI_REMOVE} TEM CERTEZA que deseja desinstalar o Puro do seu sistema? (s/N): ${NC}")" confirm
                 if [[ "$confirm" =~ ^[sS]$ ]]; then
-                    printf "\n%b\n" "${CYAN}Desinstalando Puro...${NC}"
+                    printf "\n%b\n" "${CYAN}${EMOJI_REMOVE} Desinstalando Puro...${NC}"
                     puro uninstall-puro
-                    printf "\n%b\n" "${GREEN}Puro desinstalado. Este script não funcionará mais.${NC}"
+                    printf "\n%b\n" "${GREEN}${EMOJI_OK} Puro desinstalado. Este script não funcionará mais.${NC}"
                     exit 0
                 else
-                    printf "\n%b\n" "${YELLOW}Operação cancelada.${NC}"
+                    printf "\n%b\n" "${YELLOW}${EMOJI_WARN} Operação cancelada.${NC}"
                     sleep 2
                 fi
                 ;;
             3)
                 show_header
-                printf "%b\n" "${CYAN}Verificando versão...${NC}"
+                printf "%b\n" "${CYAN}${EMOJI_GEAR} Verificando versão...${NC}"
                 puro --version
                 wait_for_enter
                 ;;
             4)
                 show_header
-                printf "%b\n" "${CYAN}Limpando caches não utilizados...${NC}"
+                printf "%b\n" "${CYAN}${EMOJI_CLEAN} Limpando caches não utilizados...${NC}"
                 puro gc
-                printf "\n%b\n" "${GREEN}Limpeza concluída!${NC}"
+                printf "\n%b\n" "${GREEN}${EMOJI_OK} Limpeza concluída!${NC}"
                 wait_for_enter
                 ;;
             5)
                 show_header
-                printf "%b\n" "${CYAN}Limpando arquivos de configuração do Puro do projeto atual...${NC}"
+                printf "%b\n" "${CYAN}${EMOJI_CLEAN} Limpando arquivos de configuração do Puro do projeto atual...${NC}"
                 puro clean
-                printf "\n%b\n" "${GREEN}Limpeza concluída!${NC}"
+                printf "\n%b\n" "${GREEN}${EMOJI_OK} Limpeza concluída!${NC}"
                 wait_for_enter
                 ;;
             0)
                 return ;;
             *)
-                printf "\n%b\n" "${RED}Opção inválida. Tente novamente.${NC}"
+                printf "\n%b\n" "${RED}${EMOJI_ERROR} Opção inválida. Tente novamente.${NC}"
                 sleep 2
                 ;;
         esac
@@ -315,11 +332,12 @@ main_menu() {
     check_puro_installed
     while true; do
         show_header
-        printf "%b\n" "${BLUE}O que você gostaria de fazer?${NC}"
-        printf "  ${YELLOW}1)${NC} Listar e instalar versões do Flutter\n"
-        printf "  ${YELLOW}2)${NC} Gerenciar ambientes Flutter\n"
-        printf "  ${CYAN}3)${NC} Gerenciar a ferramenta Puro\n"
-        printf "  ${RED}0)${NC} Sair\n"
+        printf "%b\n" "${BLUE}${EMOJI_GEAR}  O que você gostaria de fazer?${NC}"
+        echo
+        printf "  ${YELLOW}1)${NC} ${EMOJI_INSTALL}   Listar e instalar versões do Flutter\n"
+        printf "  ${GREEN}2)${NC} ${EMOJI_FLUTTER}  Gerenciar ambientes Flutter\n"
+        printf "  ${CYAN}3)${NC} ${EMOJI_GEAR}   Gerenciar a ferramenta Puro\n"
+        printf "  ${RED}0)${NC} ${EMOJI_EXIT}  Sair\n"
 
         echo
         read -p "Digite o número da opção desejada: " escolha
@@ -329,11 +347,11 @@ main_menu() {
             2) menu_gerenciar_instaladas ;;
             3) menu_gerenciar_puro ;;
             0)
-                printf "\n%b\n" "${GREEN}Até logo! 👋${NC}"
+                printf "\n%b\n" "${GREEN}${EMOJI_OK} Até logo! 👋${NC}"
                 exit 0
                 ;;
             *)
-                printf "\n%b\n" "${RED}Opção inválida. Por favor, escolha uma das opções acima.${NC}"
+                printf "\n%b\n" "${RED}${EMOJI_ERROR} Opção inválida. Por favor, escolha uma das opções acima.${NC}"
                 sleep 2
                 ;;
         esac
