@@ -73,6 +73,9 @@ show_header() {
 
 # Função para exibir o menu principal
 show_main_menu() {
+    # Aviso sobre VPN logo após o cabeçalho
+    printf "%b\n" "${YELLOW}ATENÇÃO:${NC} Se você estiver conectado a uma VPN, a conexão provavelmente irá falhar. Desconecte da VPN antes de usar este script."
+    echo
     printf "%b\n" "${BLUE}Selecione uma categoria:${NC}"
     echo
     printf "%b\n" "${GREEN}1.${NC} 🔗 Conectar Dispositivo"

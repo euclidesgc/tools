@@ -185,11 +185,19 @@ show_main_menu() {
 use_flutter_global() {
     show_header
     printf "%b\n" "${BLUE}Selecione a versão do Flutter para usar globalmente:${NC}"
+    # Coleta aliases principais (stable, beta, master) se existirem
+    aliases=()
+    alias_labels=()
+    for alias in stable beta master; do
+        if puro ls | grep -qE "^[[:space:]]*$alias[[:space:]]"; then
+            aliases+=("$alias")
+            alias_labels+=("${YELLOW}$alias [canal]${NC}")
+        fi
+    done
     # Coleta todas as versões disponíveis
     versions=()
     versions_display=()
     installed=()
-    # Coleta versões disponíveis
     while IFS= read -r linha; do
         clean=$(echo "$linha" | sed 's/\x1b\[[0-9;]*m//g')
         if [[ "$clean" =~ ^[[:space:]]*Flutter[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+[^ ]*) ]]; then
@@ -218,37 +226,47 @@ use_flutter_global() {
             installed+=("$versao")
         fi
     done <<< "$(puro ls)"
+    idx=1
+    for i in "${!aliases[@]}"; do
+        printf "%b\n" "  $idx) ${alias_labels[$i]}"
+        idx=$((idx+1))
+    done
     for i in "${!versions[@]}"; do
-        idx=$((i+1))
         label="${versions[$i]}"
         if [ -n "$stable_version" ] && [ "${versions[$i]}" = "$stable_version" ]; then
             label+=" ${YELLOW}[stable]${NC}"
         fi
         if printf '%s\n' "${installed[@]}" | grep -Fxq "${versions[$i]}"; then
-            versions_display+=("  $idx) ${GREEN}$label [instalado]${NC}")
+            printf "%b\n" "  $idx) ${GREEN}$label [instalado]${NC}"
         else
-            versions_display+=("  $idx) ${YELLOW}$label${NC}")
+            printf "%b\n" "  $idx) ${YELLOW}$label${NC}"
         fi
-    done
-    for line in "${versions_display[@]}"; do
-        printf "%b\n" "$line"
+        idx=$((idx+1))
     done
     printf "%b\n" "  0) Voltar"
+    total_opts=$(( ${#aliases[@]} + ${#versions[@]} ))
     while true; do
         read -p "Digite o número da versão desejada: " escolha
         if [[ "$escolha" =~ ^[0-9]+$ ]]; then
             if [ "$escolha" -eq 0 ]; then
-                break
-            elif [ "$escolha" -ge 1 ] && [ "$escolha" -le ${#versions[@]} ]; then
-                versao="${versions[$((escolha-1))]}"
-                printf "%b\n" "${GREEN}Definindo Flutter $versao como global...${NC}"
-                if printf '%s\n' "${installed[@]}" | grep -Fxq "$versao"; then
-                    printf "%b\n" "${YELLOW}Ambiente já existe. Apenas definindo como global...${NC}"
+                return
+            elif [ "$escolha" -ge 1 ] && [ "$escolha" -le $total_opts ]; then
+                if [ "$escolha" -le ${#aliases[@]} ]; then
+                    alias_sel="${aliases[$((escolha-1))]}"
+                    printf "%b\n" "${GREEN}Definindo Flutter $alias_sel como global...${NC}"
+                    puro use "$alias_sel" --global
                 else
-                    printf "%b\n" "${YELLOW}Ambiente não existe, criando...${NC}"
-                    puro create "$versao" "$versao"
+                    idx_vers=$((escolha-#aliases[@]-1))
+                    versao="${versions[$idx_vers]}"
+                    printf "%b\n" "${GREEN}Definindo Flutter $versao como global...${NC}"
+                    if printf '%s\n' "${installed[@]}" | grep -Fxq "$versao"; then
+                        printf "%b\n" "${YELLOW}Ambiente já existe. Apenas definindo como global...${NC}"
+                    else
+                        printf "%b\n" "${YELLOW}Ambiente não existe, criando...${NC}"
+                        puro create "$versao" "$versao"
+                    fi
+                    puro use "$versao" --global
                 fi
-                puro use "$versao" --global
                 break
             else
                 printf "%b\n" "${RED}Opção inválida.${NC}"
@@ -265,6 +283,15 @@ use_flutter_global() {
 use_flutter_project() {
     show_header
     printf "%b\n" "${BLUE}Selecione a versão do Flutter para este projeto:${NC}"
+    # Coleta aliases principais (stable, beta, master) se existirem
+    aliases=()
+    alias_labels=()
+    for alias in stable beta master; do
+        if puro ls | grep -qE "^[[:space:]]*$alias[[:space:]]"; then
+            aliases+=("$alias")
+            alias_labels+=("${YELLOW}$alias [canal]${NC}")
+        fi
+    done
     versions=()
     versions_display=()
     installed=()
@@ -286,27 +313,37 @@ use_flutter_project() {
             installed+=("$versao")
         fi
     done <<< "$(puro ls)"
-    for i in "${!versions[@]}"; do
-        idx=$((i+1))
-        if printf '%s\n' "${installed[@]}" | grep -Fxq "${versions[$i]}"; then
-            versions_display+=("  $idx) ${GREEN}${versions[$i]} [instalado]${NC}")
-        else
-            versions_display+=("  $idx) ${YELLOW}${versions[$i]}${NC}")
-        fi
+    idx=1
+    for i in "${!aliases[@]}"; do
+        printf "%b\n" "  $idx) ${alias_labels[$i]}"
+        idx=$((idx+1))
     done
-    for line in "${versions_display[@]}"; do
-        printf "%b\n" "$line"
+    for i in "${!versions[@]}"; do
+        if printf '%s\n' "${installed[@]}" | grep -Fxq "${versions[$i]}"; then
+            printf "%b\n" "  $idx) ${GREEN}${versions[$i]} [instalado]${NC}"
+        else
+            printf "%b\n" "  $idx) ${YELLOW}${versions[$i]}${NC}"
+        fi
+        idx=$((idx+1))
     done
     printf "%b\n" "  0) Voltar"
+    total_opts=$(( ${#aliases[@]} + ${#versions[@]} ))
     while true; do
         read -p "Digite o número da versão desejada: " escolha
         if [[ "$escolha" =~ ^[0-9]+$ ]]; then
             if [ "$escolha" -eq 0 ]; then
-                break
-            elif [ "$escolha" -ge 1 ] && [ "$escolha" -le ${#versions[@]} ]; then
-                versao="${versions[$((escolha-1))]}"
-                printf "%b\n" "${GREEN}Aplicando Flutter $versao neste projeto...${NC}"
-                puro upgrade "$versao" --project=.
+                return
+            elif [ "$escolha" -ge 1 ] && [ "$escolha" -le $total_opts ]; then
+                if [ "$escolha" -le ${#aliases[@]} ]; then
+                    alias_sel="${aliases[$((escolha-1))]}"
+                    printf "%b\n" "${GREEN}Aplicando Flutter $alias_sel neste projeto...${NC}"
+                    puro upgrade "$alias_sel" --project=.
+                else
+                    idx_vers=$((escolha-#aliases[@]-1))
+                    versao="${versions[$idx_vers]}"
+                    printf "%b\n" "${GREEN}Aplicando Flutter $versao neste projeto...${NC}"
+                    puro upgrade "$versao" --project=.
+                fi
                 break
             else
                 printf "%b\n" "${RED}Opção inválida.${NC}"
