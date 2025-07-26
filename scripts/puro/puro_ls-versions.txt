@@ -1,0 +1,23 @@
+[38;5;12m[1m[i] [0mLatest stable releases:
+    Flutter 3.32.8        [38;5;8m | [0m1d [38;5;8m | [0medada7c56e[38;5;8m | [0mDart 3.8.1
+    Flutter 3.32.7        [38;5;8m | [0m1w [38;5;8m | [0md7b523b356[38;5;8m | [0mDart 3.8.1
+    Flutter 3.32.6        [38;5;8m | [0m2w [38;5;8m | [0m077b4a4ce1[38;5;8m | [0mDart 3.8.1
+    Flutter 3.32.5        [38;5;8m | [0m1mo[38;5;8m | [0mfcf2c11572[38;5;8m | [0mDart 3.8.1
+    Flutter 3.32.4        [38;5;8m | [0m1mo[38;5;8m | [0m6fba2447e9[38;5;8m | [0mDart 3.8.1
+    Flutter 3.29.3        [38;5;8m | [0m3mo[38;5;8m | [0mea121f8859[38;5;8m | [0mDart 3.7.2
+    Flutter 3.27.4        [38;5;8m | [0m6mo[38;5;8m | [0md8a9f9a52e[38;5;8m | [0mDart 3.6.2
+    Flutter 3.24.5        [38;5;8m | [0m8mo[38;5;8m | [0mdec2ee5c1f[38;5;8m | [0mDart 3.5.4
+    Flutter 3.22.3        [38;5;8m | [0m1y [38;5;8m | [0mb0850beeb2[38;5;8m | [0mDart 3.4.4
+    Flutter 3.19.6        [38;5;8m | [0m1y [38;5;8m | [0m54e66469a9[38;5;8m | [0mDart 3.3.4
+    
+    Latest beta releases:
+    Flutter 3.35.0-0.1.pre[38;5;8m | [0m5d [38;5;8m | [0mc0f2a1dd60[38;5;8m | [0mDart 3.9.0
+    Flutter 3.35.0-0.0.pre[38;5;8m | [0m1w [38;5;8m | [0md86b4e9fd5[38;5;8m | [0mDart 3.9.0
+    Flutter 3.34.0-0.1.pre[38;5;8m | [0m4w [38;5;8m | [0meb3ca25171[38;5;8m | [0mDart 3.9.0
+    Flutter 3.34.0-0.0.pre[38;5;8m | [0m1mo[38;5;8m | [0m01fde956f0[38;5;8m | [0mDart 3.9.0
+    Flutter 3.33.0-0.2.pre[38;5;8m | [0m2mo[38;5;8m | [0m1db45f7408[38;5;8m | [0mDart 3.9.0
+    Flutter 3.32.0-0.5.pre[38;5;8m | [0m2mo[38;5;8m | [0m48ea72a87d[38;5;8m | [0mDart 3.8.0
+    Flutter 3.31.0-0.1.pre[38;5;8m | [0m4mo[38;5;8m | [0mfce807530a[38;5;8m | [0mDart 3.8.0
+    Flutter 3.30.0-0.1.pre[38;5;8m | [0m5mo[38;5;8m | [0m360a12c848[38;5;8m | [0mDart 3.8.0
+    Flutter 3.29.0-0.3.pre[38;5;8m | [0m6mo[38;5;8m | [0mc21336e227[38;5;8m | [0mDart 3.7.0
+    Flutter 3.28.0-0.1.pre[38;5;8m | [0m7mo[38;5;8m | [0m3e493a3e4d[38;5;8m | [0mDart 3.7.0

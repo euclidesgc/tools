@@ -1,570 +1,344 @@
-# Função para desinstalar o Puro
-uninstall_puro() {
-    show_header
-    printf "%b\n" "${RED}Desinstalar Puro:${NC}"
-    printf "%b\n" "Isso irá remover o binário do Puro e a linha do PATH do ~/.zshrc."
-    read -p "Tem certeza que deseja desinstalar o Puro? (s/N): " confirm
-    if [[ "$confirm" =~ ^[sS]$ ]]; then
-        rm -rf "$HOME/.puro"
-        sed -i '' '/export PATH=\"\$HOME\/\.puro\/bin:\$PATH\"/d' ~/.zshrc
-        printf "%b\n" "${GREEN}Puro desinstalado com sucesso!${NC}"
-    else
-        printf "%b\n" "${YELLOW}Desinstalação cancelada.${NC}"
-    fi
-    printf "%b\n" "${YELLOW}Pressione Enter para voltar...${NC}"
-    read
-}
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Cores para menus
+# Cores para a interface
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+NC='\033[0m' # Sem Cor
 
-# Função para exibir cabeçalho
+# Função para verificar se o 'puro' está instalado
+check_puro_installed() {
+    if ! command -v puro &> /dev/null; then
+        printf "%b\n" "${RED}ERRO: O comando 'puro' não foi encontrado.${NC}"
+        printf "%b\n" "${YELLOW}Por favor, instale o Puro para usar este script.${NC}"
+        printf "%b\n" "Visite: https://puro.dev/"
+        exit 1
+    fi
+}
+
+# Função para exibir o cabeçalho
 show_header() {
     clear
-    printf "%b\n" "${CYAN}╔══════════════════════════════════════════════════╗${NC}"
-    printf "%b\n" "${CYAN}║            ${YELLOW}PURO Manager - Flutter Env${CYAN}            ║${NC}"
-    printf "%b\n" "${CYAN}║      ${GREEN}Gerencie ambientes Flutter facilmente${CYAN}       ║${NC}"
-    printf "%b\n" "${CYAN}║    ${RED}Para sair, pressione Ctrl + C no terminal.${CYAN}    ║${NC}"
-    printf "%b\n" "${CYAN}╚══════════════════════════════════════════════════╝${NC}"
+    printf "%b\n" "${CYAN}╔═══════════════════════════════════════════════════════════════╗${NC}"
+    printf "%b\n" "${CYAN}║                   ${YELLOW}PURO Manager - Flutter Env${CYAN}                  ║${NC}"
+    printf "%b\n" "${CYAN}║      ${GREEN}Gerencie seus ambientes Flutter com mais facilidade${CYAN}      ║${NC}"
+    printf "%b\n" "${CYAN}╚═══════════════════════════════════════════════════════════════╝${NC}"
     echo
 }
 
-# Função para instalar o Puro
-install_puro() {
-    show_header
-    printf "%b\n" "${YELLOW}Instalando ou atualizando Puro...${NC}"
-    curl -fsSL https://puro.dev/install.sh | bash
-    export PATH="$HOME/.puro/bin:$PATH"
-    if ! grep -q 'export PATH="$HOME/.puro/bin:$PATH"' ~/.zshrc; then
-        echo 'export PATH="$HOME/.puro/bin:$PATH"' >> ~/.zshrc
-    fi
-    printf "%b\n" "${GREEN}Puro instalado ou atualizado com sucesso!${NC}"
-    printf "%b\n" "${YELLOW}Pressione Enter para voltar...${NC}"
-    read
-}
-
-# Função para listar ambientes
-list_ambientes() {
-    show_header
-    printf "%b\n" "${BLUE}Ambientes disponíveis:${NC}"
-    ambientes=()
-    ambientes_usados=()
-    # Filtra nomes de ambientes: remove ANSI, pega só linhas que começam com espaços, pega só o primeiro campo
-    while IFS= read -r linha; do
-        clean=$(echo "$linha" | sed 's/\x1b\[[0-9;]*m//g')
-        if echo "$clean" | grep -qE '^  '; then
-            nome=$(echo "$clean" | awk '{print $1}')
-            if [ -n "$nome" ] && [[ ! "$nome" =~ ^\(|\)$ ]]; then
-                # Verifica se está em uso
-                usado=""
-                if [ -n "$(puro where "$nome" 2>/dev/null | grep -v '^$')" ]; then
-                    usado=" [usado]"
-                fi
-                ambientes+=("$nome$usado")
-            fi
-        fi
-    done <<< "$(puro ls)"
-    if [ ${#ambientes[@]} -eq 0 ]; then
-        printf "%b\n" "${RED}Nenhum ambiente encontrado.${NC}"
-        printf "%b\n" "${YELLOW}Pressione Enter para voltar...${NC}"
-        read
-        return
-    fi
-    printf "%b\n" "${BLUE}Selecione um ambiente:${NC}"
-    for i in "${!ambientes[@]}"; do
-        idx=$((i+1))
-        printf "%b\n" "  $idx) ${GREEN}${ambientes[$i]}${NC}"
-    done
-    printf "%b\n" "  0) Voltar"
-    while true; do
-        read -p "Digite o número do ambiente desejado: " escolha
-        if [[ "$escolha" =~ ^[0-9]+$ ]]; then
-            if [ "$escolha" -eq 0 ]; then
-                break
-            elif [ "$escolha" -ge 1 ] && [ "$escolha" -le ${#ambientes[@]} ]; then
-                env="${ambientes[$((escolha-1))]}"
-                printf "%b\n" "${GREEN}Você selecionou o ambiente: '$env'${NC}"
-                # Aqui você pode adicionar ações, como mostrar detalhes, ativar, remover, etc.
-                break
-            else
-                printf "%b\n" "${RED}Opção inválida.${NC}"
-            fi
-        else
-            printf "%b\n" "${RED}Digite apenas números.${NC}"
-        fi
-    done
-    printf "%b\n" "${YELLOW}Pressione Enter para voltar...${NC}"
-    read
-}
-
-# Função para listar versões do Flutter
-list_versions() {
-    show_header
-    printf "%b\n" "${BLUE}Versões do Flutter disponíveis:${NC}"
-    puro ls-versions
+# Função para aguardar o usuário pressionar Enter
+wait_for_enter() {
     echo
-    printf "%b\n" "${YELLOW}Pressione Enter para voltar...${NC}"
-    read
+    read -p "$(printf "%b" "${YELLOW}Pressione Enter para voltar ao menu...${NC}")"
 }
 
-# Função para criar novo ambiente
-create_ambiente() {
-    show_header
-    printf "%b\n" "${BLUE}Criar novo ambiente Flutter:${NC}"
-    read -p "Nome do novo ambiente: " env
-    puro create "$env"
-    echo
-    printf "%b\n" "${GREEN}Ambiente '$env' criado!${NC}"
-    printf "%b\n" "${YELLOW}Pressione Enter para voltar...${NC}"
-    read
-}
+#-------------------------------------------------------------------------------
+# FUNÇÕES DE INSTALAÇÃO (MENU 1)
+#-------------------------------------------------------------------------------
+create_installation_menu() {
+    local title="$1"
+    local filter_pattern="$2"
 
-# Função para usar ambiente
-use_ambiente() {
-    show_header
-    printf "%b\n" "${BLUE}Selecione um ambiente para usar:${NC}"
-    ambientes=()
-    for linha in $(puro ls); do
-        [ -n "$linha" ] && ambientes+=("$linha")
-    done
-    if [ ${#ambientes[@]} -eq 0 ]; then
-        printf "%b\n" "${RED}Nenhum ambiente encontrado.${NC}"
-        printf "%b\n" "${YELLOW}Pressione Enter para voltar...${NC}"
-        read
-        return
-    fi
-    select env in "${ambientes[@]}" "Cancelar"; do
-        if [ "$env" = "Cancelar" ]; then
-            break
-        elif [ -n "$env" ]; then
-            puro use "$env"
-            echo
-            printf "%b\n" "${GREEN}Ambiente '$env' ativado!${NC}"
-            break
-        else
-            printf "%b\n" "${RED}Opção inválida.${NC}"
-        fi
-    done
-    printf "%b\n" "${YELLOW}Pressione Enter para voltar...${NC}"
-    read
-}
-
-# Função para atualizar o Puro
-upgrade_puro() {
-    show_header
-    printf "%b\n" "${BLUE}Atualizando Puro...${NC}"
-    puro upgrade-puro
-    echo
-    printf "%b\n" "${GREEN}Puro atualizado!${NC}"
-    printf "%b\n" "${YELLOW}Pressione Enter para voltar...${NC}"
-    read
-}
-
-# Função para exibir o menu principal
-show_main_menu() {
-    printf "%b\n" "${BLUE}Selecione uma opção:${NC}"
-    echo
-    printf "%b\n" "${GREEN}1.${NC} Listar ambientes"
-    printf "%b\n" "${GREEN}2.${NC} Listar versões do Flutter"
-    printf "%b\n" "${GREEN}3.${NC} Criar novo ambiente"
-    printf "%b\n" "${GREEN}4.${NC} Usar ambiente"
-    printf "%b\n" "${GREEN}5.${NC} Atualizar Puro"
-    printf "%b\n" "${RED}0.${NC} Sair"
-    echo
-    printf "Digite sua escolha [0-5]: "
-}
-
-
-# Usar versão global do Flutter
-use_flutter_global() {
-    show_header
-    printf "%b\n" "${BLUE}Selecione a versão do Flutter para usar globalmente:${NC}"
-    # Coleta aliases principais (stable, beta, master) se existirem
-    aliases=()
-    alias_labels=()
-    for alias in stable beta master; do
-        if puro ls | grep -qE "^[[:space:]]*$alias[[:space:]]"; then
-            aliases+=("$alias")
-            alias_labels+=("${YELLOW}$alias [canal]${NC}")
-        fi
-    done
-    # Coleta todas as versões disponíveis
-    versions=()
-    versions_display=()
-    installed=()
-    while IFS= read -r linha; do
-        clean=$(echo "$linha" | sed 's/\x1b\[[0-9;]*m//g')
-        if [[ "$clean" =~ ^[[:space:]]*Flutter[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+[^ ]*) ]]; then
-            versao=$(echo "$clean" | awk '{for(i=1;i<=NF;i++) if($i=="Flutter") print $(i+1)}')
-            versions+=("$versao")
-        fi
-    done <<< "$(puro ls-versions)"
-    # Descobre qual versão é a stable
-    stable_version=""
-    while IFS= read -r linha; do
-        clean=$(echo "$linha" | sed 's/\x1b\[[0-9;]*m//g')
-        if [[ "$clean" =~ ^[[:space:]]*stable[[:space:]] ]]; then
-            stable_version=$(echo "$clean" | grep -oE '\([0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?' | head -n1 | tr -d '(')
-            break
-        fi
-    done <<< "$(puro ls)"
-    # Coleta todos ambientes instalados (nomeados e numéricos)
-    while IFS= read -r linha; do
-        clean=$(echo "$linha" | sed 's/\x1b\[[0-9;]*m//g')
-        nome=$(echo "$clean" | awk '{print $1}')
-        versao=$(echo "$clean" | grep -oE '\([0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?' | head -n1 | tr -d '(')
-        if [ -z "$versao" ]; then
-            versao=$(echo "$clean" | awk '{for(i=2;i<=NF;i++) if($i ~ /^[0-9]+\.[0-9]+\.[0-9]+/) {print $i; break}}')
-        fi
-        if [ -n "$versao" ]; then
-            installed+=("$versao")
-        fi
-    done <<< "$(puro ls)"
-    idx=1
-    for i in "${!aliases[@]}"; do
-        printf "%b\n" "  $idx) ${alias_labels[$i]}"
-        idx=$((idx+1))
-    done
-    for i in "${!versions[@]}"; do
-        label="${versions[$i]}"
-        if [ -n "$stable_version" ] && [ "${versions[$i]}" = "$stable_version" ]; then
-            label+=" ${YELLOW}[stable]${NC}"
-        fi
-        if printf '%s\n' "${installed[@]}" | grep -Fxq "${versions[$i]}"; then
-            printf "%b\n" "  $idx) ${GREEN}$label [instalado]${NC}"
-        else
-            printf "%b\n" "  $idx) ${YELLOW}$label${NC}"
-        fi
-        idx=$((idx+1))
-    done
-    printf "%b\n" "  0) Voltar"
-    total_opts=$(( ${#aliases[@]} + ${#versions[@]} ))
-    while true; do
-        read -p "Digite o número da versão desejada: " escolha
-        if [[ "$escolha" =~ ^[0-9]+$ ]]; then
-            if [ "$escolha" -eq 0 ]; then
-                return
-            elif [ "$escolha" -ge 1 ] && [ "$escolha" -le $total_opts ]; then
-                if [ "$escolha" -le ${#aliases[@]} ]; then
-                    alias_sel="${aliases[$((escolha-1))]}"
-                    printf "%b\n" "${GREEN}Definindo Flutter $alias_sel como global...${NC}"
-                    puro use "$alias_sel" --global
-                else
-                    idx_vers=$((escolha-#aliases[@]-1))
-                    versao="${versions[$idx_vers]}"
-                    printf "%b\n" "${GREEN}Definindo Flutter $versao como global...${NC}"
-                    if printf '%s\n' "${installed[@]}" | grep -Fxq "$versao"; then
-                        printf "%b\n" "${YELLOW}Ambiente já existe. Apenas definindo como global...${NC}"
-                    else
-                        printf "%b\n" "${YELLOW}Ambiente não existe, criando...${NC}"
-                        puro create "$versao" "$versao"
-                    fi
-                    puro use "$versao" --global
-                fi
-                break
-            else
-                printf "%b\n" "${RED}Opção inválida.${NC}"
-            fi
-        else
-            printf "%b\n" "${RED}Digite apenas números.${NC}"
-        fi
-    done
-    # Recarrega o ambiente automaticamente
-    if [ -f "$HOME/.puro/env" ]; then
-        printf "%b\n" "${CYAN}Recarregando ambiente do Flutter (source ~/.puro/env)...${NC}"
-        # shellcheck source=/dev/null
-        source "$HOME/.puro/env"
-        printf "%b\n" "${GREEN}Ambiente recarregado!${NC}"
-    else
-        printf "%b\n" "${YELLOW}Arquivo ~/.puro/env não encontrado. Abra um novo terminal se necessário.${NC}"
-    fi
-    printf "%b\n" "${YELLOW}Pressione Enter para voltar...${NC}"
-    read
-}
-
-# Usar versão do Flutter neste projeto
-use_flutter_project() {
-    show_header
-    printf "%b\n" "${BLUE}Selecione a versão do Flutter para este projeto:${NC}"
-    # Coleta aliases principais (stable, beta, master) se existirem
-    aliases=()
-    alias_labels=()
-    for alias in stable beta master; do
-        if puro ls | grep -qE "^[[:space:]]*$alias[[:space:]]"; then
-            aliases+=("$alias")
-            alias_labels+=("${YELLOW}$alias [canal]${NC}")
-        fi
-    done
-    versions=()
-    versions_display=()
-    installed=()
-    while IFS= read -r linha; do
-        clean=$(echo "$linha" | sed 's/\x1b\[[0-9;]*m//g')
-        if [[ "$clean" =~ ^[[:space:]]*Flutter[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+[^ ]*) ]]; then
-            versao=$(echo "$clean" | awk '{for(i=1;i<=NF;i++) if($i=="Flutter") print $(i+1)}')
-            versions+=("$versao")
-        fi
-    done <<< "$(puro ls-versions)"
-    while IFS= read -r linha; do
-        clean=$(echo "$linha" | sed 's/\x1b\[[0-9;]*m//g')
-        nome=$(echo "$clean" | awk '{print $1}')
-        versao=$(echo "$clean" | grep -oE '\([0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?' | head -n1 | tr -d '(')
-        if [ -z "$versao" ]; then
-            versao=$(echo "$clean" | awk '{for(i=2;i<=NF;i++) if($i ~ /^[0-9]+\.[0-9]+\.[0-9]+/) {print $i; break}}')
-        fi
-        if [ -n "$versao" ]; then
-            installed+=("$versao")
-        fi
-    done <<< "$(puro ls)"
-    idx=1
-    for i in "${!aliases[@]}"; do
-        printf "%b\n" "  $idx) ${alias_labels[$i]}"
-        idx=$((idx+1))
-    done
-    for i in "${!versions[@]}"; do
-        if printf '%s\n' "${installed[@]}" | grep -Fxq "${versions[$i]}"; then
-            printf "%b\n" "  $idx) ${GREEN}${versions[$i]} [instalado]${NC}"
-        else
-            printf "%b\n" "  $idx) ${YELLOW}${versions[$i]}${NC}"
-        fi
-        idx=$((idx+1))
-    done
-    printf "%b\n" "  0) Voltar"
-    total_opts=$(( ${#aliases[@]} + ${#versions[@]} ))
-    while true; do
-        read -p "Digite o número da versão desejada: " escolha
-        if [[ "$escolha" =~ ^[0-9]+$ ]]; then
-            if [ "$escolha" -eq 0 ]; then
-                return
-            elif [ "$escolha" -ge 1 ] && [ "$escolha" -le $total_opts ]; then
-                if [ "$escolha" -le ${#aliases[@]} ]; then
-                    alias_sel="${aliases[$((escolha-1))]}"
-                    printf "%b\n" "${GREEN}Aplicando Flutter $alias_sel neste projeto...${NC}"
-                    puro upgrade "$alias_sel" --project=.
-                else
-                    idx_vers=$((escolha-#aliases[@]-1))
-                    versao="${versions[$idx_vers]}"
-                    printf "%b\n" "${GREEN}Aplicando Flutter $versao neste projeto...${NC}"
-                    puro upgrade "$versao" --project=.
-                fi
-                break
-            else
-                printf "%b\n" "${RED}Opção inválida.${NC}"
-            fi
-        else
-            printf "%b\n" "${RED}Digite apenas números.${NC}"
-        fi
-    done
-    # Recarrega o ambiente automaticamente
-    if [ -f "$HOME/.puro/env" ]; then
-        printf "%b\n" "${CYAN}Recarregando ambiente do Flutter (source ~/.puro/env)...${NC}"
-        # shellcheck source=/dev/null
-        source "$HOME/.puro/env"
-        printf "%b\n" "${GREEN}Ambiente recarregado!${NC}"
-    else
-        printf "%b\n" "${YELLOW}Arquivo ~/.puro/env não encontrado. Abra um novo terminal se necessário.${NC}"
-    fi
-    printf "%b\n" "${YELLOW}Pressione Enter para voltar...${NC}"
-    read
-}
-
-# Instalar nova versão do Flutter
-install_flutter_version() {
-    show_header
-    printf "%b\n" "${BLUE}Digite a versão do Flutter que deseja instalar (ex: 3.19.3):${NC}"
-    read -p "Versão: " versao
-    if [ -z "$versao" ]; then
-        printf "%b\n" "${RED}Versão não informada.${NC}"
-    else
-        printf "%b\n" "${GREEN}Instalando Flutter $versao...${NC}"
-        puro upgrade "$versao"
-    fi
-    printf "%b\n" "${YELLOW}Pressione Enter para voltar...${NC}"
-    read
-}
-
-# Remover versão do Flutter
-remove_flutter_version() {
-    show_header
-    printf "%b\n" "${BLUE}Selecione o ambiente do Flutter para remover:${NC}"
-    menu_items=()
-    menu_names=()
-    # Parse puro ls para listar ambientes igual ao output real, ignorando linhas de dica/uso
-    # Descobre qual ambiente é o stable (nome exato ou alias)
-    stable_env=""
-    while IFS= read -r linha; do
-        clean=$(echo "$linha" | sed 's/\x1b\[[0-9;]*m//g')
-        if [[ "$clean" =~ ^[[:space:]]*stable[[:space:]] ]]; then
-            stable_env="stable"
-            break
-        fi
-    done <<< "$(puro ls)"
-
-    while IFS= read -r linha; do
-        clean=$(echo "$linha" | sed 's/\x1b\[[0-9;]*m//g')
-        # Ignora linhas vazias e linhas de dica/uso (começam com 'Use' ou espaços + 'Use')
-        if [[ -z "$clean" ]] || [[ "$clean" =~ ^[[:space:]]*Use ]]; then
-            continue
-        fi
-        # Ambiente atual (linha começa com ~)
-        if [[ "$clean" =~ ^[[:space:]]*~ ]]; then
-            nome=$(echo "$clean" | awk '{print $2}')
-            info=$(echo "$clean" | sed -E 's/^[^\(]*\(([^)]*)\).*/\1/')
-            label="~ $nome ($info)"
-            if [[ "$nome" == "$stable_env" ]]; then
-                label+=" ${YELLOW}[stable]${NC}"
-            fi
-            menu_items+=("$label")
-            menu_names+=("$nome")
-        # Ambiente instalado (linha começa com espaço + nome)
-        elif [[ "$clean" =~ ^[[:space:]]+[a-zA-Z0-9._-]+ ]]; then
-            nome=$(echo "$clean" | awk '{print $1}')
-            info=$(echo "$clean" | sed -E 's/^[^\(]*\(([^)]*)\).*/\1/')
-            if [[ "$info" != "not installed" && -n "$info" ]]; then
-                label="$nome ($info)"
-                if [[ "$nome" == "$stable_env" ]]; then
-                    label+=" ${YELLOW}[stable]${NC}"
-                fi
-                menu_items+=("$label")
-                menu_names+=("$nome")
-            fi
-        fi
-    done <<< "$(puro ls)"
-    if [ ${#menu_items[@]} -eq 0 ]; then
-        printf "%b\n" "${RED}Nenhum ambiente encontrado para remoção.${NC}"
-        read -p "Pressione Enter para voltar..."
-        return
-    fi
-    for i in "${!menu_items[@]}"; do
-        n=$((i+1))
-        printf "%b\n" "  $n) ${GREEN}${menu_items[$i]}${NC}"
-    done
-    printf "%b\n" "  0) Voltar"
-    while true; do
-        read -p "Digite o número do ambiente para remover: " escolha
-        if [[ "$escolha" =~ ^[0-9]+$ ]]; then
-            if [ "$escolha" -eq 0 ]; then
-                break
-            elif [ "$escolha" -ge 1 ] && [ "$escolha" -le ${#menu_names[@]} ]; then
-                env_name="${menu_names[$((escolha-1))]}"
-                printf "%b\n" "${GREEN}Removendo ambiente '$env_name'...${NC}"
-                rm_output=$(puro rm "$env_name" 2>&1)
-                if [ $? -eq 0 ]; then
-                    printf "%b\n" "${GREEN}Ambiente removido com sucesso!${NC}"
-                    read -p "Pressione Enter para voltar..."
-                    remove_flutter_version
-                    return
-                else
-                    # Detecta se erro é ambiente em uso
-                    if echo "$rm_output" | grep -qE 'is currently used by the following projects:'; then
-                        printf "%b\n" "${YELLOW}$rm_output${NC}"
-                        read -p "Deseja forçar a remoção mesmo assim? (s/N): " confirm
-                        if [[ "$confirm" =~ ^[sS]$ ]]; then
-                            if puro rm "$env_name" -f; then
-                                printf "%b\n" "${GREEN}Ambiente removido com sucesso!${NC}"
-                                read -p "Pressione Enter para voltar..."
-                                remove_flutter_version
-                                return
-                            else
-                                printf "%b\n" "${RED}Erro ao remover ambiente mesmo forçando.${NC}"
-                                read -p "Pressione Enter para voltar..."
-                                remove_flutter_version
-                                return
-                            fi
-                        else
-                            printf "%b\n" "${YELLOW}Remoção cancelada.${NC}"
-                            read -p "Pressione Enter para voltar..."
-                            remove_flutter_version
-                            return
-                        fi
-                    else
-                        printf "%b\n" "${RED}Erro ao remover ambiente.${NC}"
-                        echo "$rm_output"
-                        read -p "Pressione Enter para voltar..."
-                        remove_flutter_version
-                        return
-                    fi
-                fi
-            else
-                printf "%b\n" "${RED}Opção inválida.${NC}"
-            fi
-        else
-            printf "%b\n" "${RED}Digite apenas números.${NC}"
-        fi
-    done
-}
-
-# Atualizar Puro
-upgrade_puro() {
-    show_header
-    printf "%b\n" "${BLUE}Atualizando Puro...${NC}"
-    puro upgrade-puro
-    echo
-    printf "%b\n" "${GREEN}Puro atualizado!${NC}"
-    printf "%b\n" "${YELLOW}Pressione Enter para voltar...${NC}"
-    read
-}
-
-# Limpar caches
-clean_caches() {
-    show_header
-    printf "%b\n" "${BLUE}Limpando caches não utilizados...${NC}"
-    puro gc
-    printf "%b\n" "${GREEN}Caches limpos!${NC}"
-    printf "%b\n" "${YELLOW}Pressione Enter para voltar...${NC}"
-    read
-}
-
-# Menu principal
-main() {
     while true; do
         show_header
-        printf "%b\n" "${BLUE}Selecione uma opção:${NC}"
-        printf "%b\n" "   1) 🌍 ${GREEN}Usar versão do Flutter Globalmente${NC}"
-        printf "%b\n" "   2) 📁 ${GREEN}Usar versão do Flutter apenas neste projeto${NC}"
-        printf "%b\n" "   3) 🗑️  ${GREEN}Remover versão do Flutter${NC}"
-        printf "%b\n" "   4) ⬆️  ${GREEN}Atualizar Puro${NC}"
-        printf "%b\n" "   5) 🧹 ${GREEN}Limpar caches${NC}"
-        printf "%b\n" "   6) 🛠️  ${YELLOW}Gerenciar Puro (instalar/desinstalar)${NC}"
-        printf "%b\n" "   0) 🚪 ${RED}Sair${NC}"
-        while true; do
-            read -p "Digite o número da opção desejada: " opt
-            case $opt in
-                1) use_flutter_global; break ;;
-                2) use_flutter_project; break ;;
-                3) remove_flutter_version; break ;;
-                4) upgrade_puro; break ;;
-                5) clean_caches; break ;;
-                6)
-                    while true; do
-                        show_header
-                        printf "%b\n" "${YELLOW}Gerenciar Puro:${NC}"
-                        printf "%b\n" "  1) Instalar ou atualizar Puro"
-                        printf "%b\n" "  2) Desinstalar Puro"
-                        printf "%b\n" "  0) Voltar"
-                        read -p "Digite o número da opção desejada: " puro_opt
-                        case $puro_opt in
-                            1) install_puro; break ;;
-                            2) uninstall_puro; break ;;
-                            0) break ;;
-                            *) printf "%b\n" "${RED}Opção inválida. Digite 0, 1 ou 2.${NC}" ;;
-                        esac
-                    done
+        printf "%b\n" "${BLUE}${title}${NC}"
+
+        local instalados=()
+        while IFS= read -r line; do
+            [[ -n "$line" ]] && instalados+=("$(echo "$line" | awk '{print $1}')")
+        done < <(puro ls | sed 's/\x1b\[[0-9;]*m//g' | grep -v 'not installed' | grep -E "^\s*(~|\*)?\s*[a-zA-Z0-9].*\s+\(")
+
+        local disponiveis=()
+        while IFS= read -r line; do
+            if [[ -n "$line" ]]; then
+                if echo "$line" | grep -qE "$filter_pattern"; then
+                    disponiveis+=("$line")
+                fi
+            fi
+        done < <(puro ls-versions | sed 's/\x1b\[[0-9;]*m//g' | grep -oE 'Flutter [0-9]+\.[0-9]+\.[^ |]+' | awk '{print $2}' | sort -Vru)
+
+        local opcoes=()
+        for i in "${!disponiveis[@]}"; do
+            local versao="${disponiveis[$i]}"
+            local status=""
+            for instalado in "${instalados[@]}"; do
+                if [[ "$instalado" == "$versao" ]]; then
+                    status="${GREEN} [Instalada]${NC}"
                     break
-                    ;;
-                0) printf "%b\n" "${RED}Saindo...${NC}"; exit 0 ;;
-                *) printf "%b\n" "${RED}Opção inválida. Digite um número de 0 a 6.${NC}" ;;
-            esac
+                fi
+            done
+            printf "  ${YELLOW}%2d)${NC} Flutter %s%b\n" "$((i+1))" "$versao" "$status"
+            opcoes+=("$versao")
         done
+        printf "   ${RED}0)${NC} Voltar\n"
+
+        echo
+        read -p "Digite o número da versão para instalar: " escolha
+
+        if [[ "$escolha" =~ ^[0-9]+$ ]] && [ "$escolha" -ge 0 ] && [ "$escolha" -le ${#opcoes[@]} ]; then
+            if [ "$escolha" -eq 0 ]; then
+                return
+            fi
+
+            local idx=$((escolha - 1))
+            local versao_selecionada="${opcoes[$idx]}"
+            local nome_env=${versao_selecionada}
+
+            printf "\n%b\n" "${CYAN}Instalando Flutter ${versao_selecionada} no ambiente '${nome_env}'...${NC}"
+            puro create "$nome_env" "$versao_selecionada"
+            printf "\n%b\n" "${GREEN}Ambiente '${nome_env}' criado com sucesso!${NC}"
+            wait_for_enter
+        else
+            printf "\n%b\n" "${RED}Opção inválida. Tente novamente.${NC}"
+            sleep 2
+        fi
     done
 }
 
-trap 'echo -e "\033[1;31mPara encerrar o script, pressione Ctrl + C no terminal.\033[0m"' EXIT
 
-main
+menu_instalar_versoes() {
+    while true; do
+        show_header
+        printf "%b\n" "${BLUE}Qual canal você deseja listar?${NC}"
+        printf "  ${YELLOW}1)${NC} Versões do canal ${GREEN}STABLE${NC}\n"
+        printf "  ${YELLOW}2)${NC} Versões do canal ${CYAN}BETA${NC}\n"
+        printf "  ${RED}0)${NC} Voltar ao menu principal\n"
+        echo
+        read -p "Digite a opção desejada: " escolha_canal
+
+        case $escolha_canal in
+            1)
+                create_installation_menu "Selecione uma versão STABLE para instalar:" '^[0-9]+\.[0-9]+\.[0-9]+$'
+                ;;
+            2)
+                create_installation_menu "Selecione uma versão BETA para instalar:" '\.pre'
+                ;;
+            0)
+                return
+                ;;
+            *)
+                printf "\n%b\n" "${RED}Opção inválida. Tente novamente.${NC}"
+                sleep 2
+                ;;
+        esac
+    done
+}
+
+
+#-------------------------------------------------------------------------------
+# OPÇÃO 2: GERENCIAR VERSÕES INSTALADAS (LÓGICA SUPER CORRIGIDA)
+#-------------------------------------------------------------------------------
+menu_gerenciar_instaladas() {
+    while true; do
+        show_header
+        printf "%b\n" "${BLUE}Selecione um ambiente para gerenciar:${NC}"
+
+        local lines=()
+        while IFS= read -r line; do
+             [[ -n "$line" ]] && lines+=("$line")
+        done < <(puro ls | sed 's/\x1b\[[0-9;]*m//g' | grep -E "^\s*(~|\*)?\s*[a-zA-Z0-9].*\s+\(")
+
+        if [ ${#lines[@]} -eq 0 ]; then
+            printf "\n%b\n" "${YELLOW}Nenhum ambiente Flutter encontrado.${NC}"
+            wait_for_enter
+            return
+        fi
+
+        local ambientes_selecionaveis=()
+
+        for i in "${!lines[@]}"; do
+            local linha_original="${lines[$i]}"
+            local nome_ambiente=""
+            local status_texto=""
+            local status_cor=$NC
+
+            # Sempre pega o primeiro campo que não seja ~ ou *
+            nome_ambiente=$(echo "$linha_original" | awk '{for(i=1;i<=NF;i++) if($i != "~" && $i != "*") {print $i; break}}')
+
+            # Status visual
+            if [[ "$linha_original" =~ ^~ ]]; then
+                status_cor=$GREEN
+                status_texto=" [Ativo Global]"
+            fi
+
+            if [[ "$linha_original" =~ 'not installed' ]]; then
+                status_cor=$YELLOW
+                status_texto=" [Não Instalado]"
+            fi
+
+            printf "  ${YELLOW}%2d)${NC} %b%s%b\n" "$((i+1))" "$status_cor" "$linha_original" "$status_texto"
+            ambientes_selecionaveis+=("$nome_ambiente")
+        done
+        printf "   ${RED}0)${NC} Voltar ao menu principal\n"
+
+        echo
+        read -p "Digite o número do ambiente: " escolha
+
+        if [[ "$escolha" =~ ^[0-9]+$ ]] && [ "$escolha" -ge 0 ] && [ "$escolha" -le ${#ambientes_selecionaveis[@]} ]; then
+            if [ "$escolha" -eq 0 ]; then
+                return
+            fi
+
+            local idx=$((escolha - 1))
+            local env_selecionado="${ambientes_selecionaveis[$idx]}"
+            local linha_selecionada="${lines[$idx]}"
+
+            if [[ "$linha_selecionada" =~ 'not installed' ]]; then
+                 read -p "$(printf "%b" "${YELLOW}O ambiente '${env_selecionado}' não está instalado. Deseja instalar agora? (s/N): ${NC}")" confirm
+                 if [[ "$confirm" =~ ^[sS]$ ]]; then
+                     printf "\n%b\n" "${CYAN}Instalando Flutter ${env_selecionado}...${NC}"
+                     puro create "$env_selecionado"
+                     printf "\n%b\n" "${GREEN}Ambiente '${env_selecionado}' instalado com sucesso!${NC}"
+                     wait_for_enter
+                 fi
+                 continue
+            fi
+
+            show_header
+            printf "%b\n" "${BLUE}O que você deseja fazer com o ambiente '${YELLOW}${env_selecionado}${BLUE}'?${NC}"
+            printf "  ${YELLOW}1)${NC} Definir como global\n"
+            printf "  ${YELLOW}2)${NC} Usar no projeto atual\n"
+            printf "  ${RED}3)${NC} Remover este ambiente\n"
+            printf "  ${RED}0)${NC} Voltar\n"
+
+            read -p "Escolha uma ação: " acao
+            case $acao in
+                1)
+                    printf "\n%b\n" "${CYAN}Definindo '${env_selecionado}' como global...${NC}"
+                    puro use "$env_selecionado" --global
+                    printf "\n%b\n" "${GREEN}Feito!${NC}"
+                    ;;
+                2)
+                    printf "\n%b\n" "${CYAN}Usando '${env_selecionado}' no projeto atual...${NC}"
+                    puro use "$env_selecionado"
+                    printf "\n%b\n" "${GREEN}Feito!${NC}"
+                    ;;
+                3)
+                    read -p "$(printf "%b" "${RED}Tem certeza que deseja remover o ambiente '${env_selecionado}'? (s/N): ${NC}")" confirm
+                    if [[ "$confirm" =~ ^[sS]$ ]]; then
+                        printf "\n%b\n" "${CYAN}Removendo ambiente...${NC}"
+                        puro rm "$env_selecionado" -f
+                        printf "\n%b\n" "${GREEN}Ambiente removido!${NC}"
+                    else
+                        printf "\n%b\n" "${YELLOW}Remoção cancelada.${NC}"
+                    fi
+                    ;;
+                0)
+                    continue ;;
+                *)
+                    printf "\n%b\n" "${RED}Ação inválida.${NC}" ;;
+            esac
+            wait_for_enter
+        else
+            printf "\n%b\n" "${RED}Opção inválida. Tente novamente.${NC}"
+            sleep 2
+        fi
+    done
+}
+
+
+#-------------------------------------------------------------------------------
+# OPÇÃO 3: GERENCIAR PURO
+#-------------------------------------------------------------------------------
+menu_gerenciar_puro() {
+    while true; do
+        show_header
+        printf "%b\n" "${BLUE}Gerenciar Puro:${NC}"
+        printf "  ${YELLOW}1)${NC} Atualizar o Puro\n"
+        printf "  ${RED}2)${NC} Desinstalar o Puro\n"
+        printf "  ${CYAN}3)${NC} Checar versão do Puro\n"
+        printf "  ${YELLOW}4)${NC} Limpar caches não usados (gc)\n"
+        printf "  ${YELLOW}5)${NC} Limpar configuração do projeto atual (clean)\n"
+        printf "  ${RED}0)${NC} Voltar ao menu principal\n"
+
+        echo
+        read -p "Digite o número da opção desejada: " escolha
+
+        case $escolha in
+            1)
+                show_header
+                printf "%b\n" "${CYAN}Atualizando Puro...${NC}"
+                puro upgrade-puro
+                printf "\n%b\n" "${GREEN}Puro atualizado!${NC}"
+                wait_for_enter
+                ;;
+            2)
+                show_header
+                read -p "$(printf "%b" "${RED}TEM CERTEZA que deseja desinstalar o Puro do seu sistema? (s/N): ${NC}")" confirm
+                if [[ "$confirm" =~ ^[sS]$ ]]; then
+                    printf "\n%b\n" "${CYAN}Desinstalando Puro...${NC}"
+                    puro uninstall-puro
+                    printf "\n%b\n" "${GREEN}Puro desinstalado. Este script não funcionará mais.${NC}"
+                    exit 0
+                else
+                    printf "\n%b\n" "${YELLOW}Operação cancelada.${NC}"
+                    sleep 2
+                fi
+                ;;
+            3)
+                show_header
+                printf "%b\n" "${CYAN}Verificando versão...${NC}"
+                puro --version
+                wait_for_enter
+                ;;
+            4)
+                show_header
+                printf "%b\n" "${CYAN}Limpando caches não utilizados...${NC}"
+                puro gc
+                printf "\n%b\n" "${GREEN}Limpeza concluída!${NC}"
+                wait_for_enter
+                ;;
+            5)
+                show_header
+                printf "%b\n" "${CYAN}Limpando arquivos de configuração do Puro do projeto atual...${NC}"
+                puro clean
+                printf "\n%b\n" "${GREEN}Limpeza concluída!${NC}"
+                wait_for_enter
+                ;;
+            0)
+                return ;;
+            *)
+                printf "\n%b\n" "${RED}Opção inválida. Tente novamente.${NC}"
+                sleep 2
+                ;;
+        esac
+    done
+}
+
+
+#-------------------------------------------------------------------------------
+# MENU PRINCIPAL
+#-------------------------------------------------------------------------------
+main_menu() {
+    check_puro_installed
+    while true; do
+        show_header
+        printf "%b\n" "${BLUE}O que você gostaria de fazer?${NC}"
+        printf "  ${YELLOW}1)${NC} Listar e instalar versões do Flutter\n"
+        printf "  ${YELLOW}2)${NC} Gerenciar ambientes Flutter\n"
+        printf "  ${CYAN}3)${NC} Gerenciar a ferramenta Puro\n"
+        printf "  ${RED}0)${NC} Sair\n"
+
+        echo
+        read -p "Digite o número da opção desejada: " escolha
+
+        case $escolha in
+            1) menu_instalar_versoes ;;
+            2) menu_gerenciar_instaladas ;;
+            3) menu_gerenciar_puro ;;
+            0)
+                printf "\n%b\n" "${GREEN}Até logo! 👋${NC}"
+                exit 0
+                ;;
+            *)
+                printf "\n%b\n" "${RED}Opção inválida. Por favor, escolha uma das opções acima.${NC}"
+                sleep 2
+                ;;
+        esac
+    done
+}
+
+# Inicia o script
+main_menu

@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "vscode-gitflow"
+		},
+		{
+			"path": "scripts"
+		},
+		{
+			"path": "lint"
+		}
+	],
+	"settings": {}
+}
