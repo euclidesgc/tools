@@ -262,12 +262,14 @@ menu_gerenciar_instaladas() {
 menu_gerenciar_puro() {
     while true; do
         show_header
-        printf "%b\n" "${BLUE}${EMOJI_GEAR} Gerenciar Puro:${NC}"
+        printf "%b\n" "${BLUE}${EMOJI_GEAR}  Gerenciar Puro:${NC}"
+        echo
         printf "  ${YELLOW}1)${NC} ${EMOJI_UPDATE} Atualizar o Puro\n"
-        printf "  ${RED}2)${NC} ${EMOJI_REMOVE} Desinstalar o Puro\n"
-        printf "  ${CYAN}3)${NC} ${EMOJI_GEAR} Checar versão do Puro\n"
-        printf "  ${YELLOW}4)${NC} ${EMOJI_CLEAN} Limpar caches não usados (gc)\n"
-        printf "  ${YELLOW}5)${NC} ${EMOJI_CLEAN} Limpar configuração do projeto atual (clean)\n"
+        printf "  ${GREEN}2)${NC} ⬇️  Instalar/Reinstalar o Puro\n"
+        printf "  ${RED}3)${NC} ${EMOJI_REMOVE}  Desinstalar o Puro\n"
+        printf "  ${CYAN}4)${NC} ${EMOJI_GEAR}  Checar versão do Puro\n"
+        printf "  ${YELLOW}5)${NC} ${EMOJI_CLEAN} Limpar caches não usados (gc)\n"
+        printf "  ${YELLOW}6)${NC} ${EMOJI_CLEAN} Limpar configuração do projeto atual (clean)\n"
         printf "  ${RED}0)${NC} ${EMOJI_EXIT} Voltar ao menu principal\n"
 
         echo
@@ -283,6 +285,13 @@ menu_gerenciar_puro() {
                 ;;
             2)
                 show_header
+                printf "%b\n" "${CYAN}⬇️  Instalando/Reinstalando o Puro...${NC}"
+                bash -c "curl -fsSL https://puro.dev/install.sh | bash"
+                printf "\n%b\n" "${GREEN}${EMOJI_OK} Instalação/Reinstalação concluída!${NC}"
+                wait_for_enter
+                ;;
+            3)
+                show_header
                 read -p "$(printf "%b" "${RED}${EMOJI_REMOVE} TEM CERTEZA que deseja desinstalar o Puro do seu sistema? (s/N): ${NC}")" confirm
                 if [[ "$confirm" =~ ^[sS]$ ]]; then
                     printf "\n%b\n" "${CYAN}${EMOJI_REMOVE} Desinstalando Puro...${NC}"
@@ -294,20 +303,20 @@ menu_gerenciar_puro() {
                     sleep 2
                 fi
                 ;;
-            3)
+            4)
                 show_header
                 printf "%b\n" "${CYAN}${EMOJI_GEAR} Verificando versão...${NC}"
                 puro --version
                 wait_for_enter
                 ;;
-            4)
+            5)
                 show_header
                 printf "%b\n" "${CYAN}${EMOJI_CLEAN} Limpando caches não utilizados...${NC}"
                 puro gc
                 printf "\n%b\n" "${GREEN}${EMOJI_OK} Limpeza concluída!${NC}"
                 wait_for_enter
                 ;;
-            5)
+            6)
                 show_header
                 printf "%b\n" "${CYAN}${EMOJI_CLEAN} Limpando arquivos de configuração do Puro do projeto atual...${NC}"
                 puro clean
