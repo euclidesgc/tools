@@ -1,24 +1,24 @@
 # Scrcpy Manager
 
-Este documento serve como um guia para o uso do script `sms.sh`, que tem como objetivo facilitar a conexão e o gerenciamento de dispositivos Android via scrcpy e adb.
+Este documento serve como um guia para o uso do script `scrcpy-manager.sh`, que tem como objetivo facilitar a conexão e o gerenciamento de dispositivos Android via scrcpy e adb.
 
 ## Uso
 
-Para usar o script, execute `sms.sh` no seu terminal.
+Para usar o script, execute `scrcpy-manager.sh` no seu terminal.
 
 ```bash
-./sms.sh
+./scrcpy-manager.sh
 ```
 
 Navegue pelos menus usando os números correspondentes a cada opção. Certifique-se de que o script tenha permissão de execução:
 
 ```bash
-chmod +x sms.sh
+chmod +x scrcpy-manager.sh
 ```
 
 ## Dependências
 
-O script `sms.sh` depende das seguintes ferramentas:
+O script `scrcpy-manager.sh` depende das seguintes ferramentas:
 - **scrcpy**: Para espelhamento e controle do dispositivo Android.
 - **adb (Android Debug Bridge)**: Para comunicação com o dispositivo Android.
 - **Homebrew**: Para gerenciamento de pacotes no macOS (usado para instalar dependências).
