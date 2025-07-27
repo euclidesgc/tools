@@ -1,14 +1,14 @@
+import 'package:analyzer/dart/ast/ast.dart';
+import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/error/listener.dart';
 import 'package:custom_lint_builder/custom_lint_builder.dart';
 
-// Regra "Hello, World!": apenas encontra o método `emit`.
 class NoEmitAfterAsyncGap extends DartLintRule {
   const NoEmitAfterAsyncGap() : super(code: _code);
 
-  // O nome da regra continua o mesmo para não precisarmos mudar o analysis_options.yaml
   static const _code = LintCode(
     name: 'no_emit_after_async_gap',
-    problemMessage: 'SUCESSO: O lint encontrou uma chamada ao método emit()!',
+    problemMessage: 'Achei uma função emit() aqui!',
   );
 
   @override
@@ -18,9 +18,20 @@ class NoEmitAfterAsyncGap extends DartLintRule {
     CustomLintContext context,
   ) {
     context.registry.addMethodDeclaration((node) {
-      if (node.name.lexeme.startsWith('emit')) {
-        reporter.atNode(node, code);
-      }
+      node.body.visitChildren(_EmitMethodVisitor(reporter));
     });
+  }
+}
+
+class _EmitMethodVisitor extends RecursiveAstVisitor<void> {
+  final ErrorReporter reporter;
+  _EmitMethodVisitor(this.reporter);
+
+  @override
+  void visitMethodInvocation(MethodInvocation node) {
+    if (node.methodName.name == 'emit') {
+      reporter.atNode(node, NoEmitAfterAsyncGap._code);
+    }
+    super.visitMethodInvocation(node);
   }
 }

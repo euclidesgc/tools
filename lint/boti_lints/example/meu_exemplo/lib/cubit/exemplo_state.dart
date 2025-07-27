@@ -1,6 +1,5 @@
 part of 'exemplo_cubit.dart';
 
-@immutable
 sealed class ExemploState {}
 
 final class ExemploInitial extends ExemploState {}
