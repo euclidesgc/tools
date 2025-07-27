@@ -1,12 +1,13 @@
 import 'package:analyzer/error/listener.dart';
 import 'package:custom_lint_builder/custom_lint_builder.dart';
 
-class BotiSimpleRule extends DartLintRule {
-  const BotiSimpleRule() : super(code: _code);
+class CheckMethodName extends DartLintRule {
+  const CheckMethodName() : super(code: _code);
 
   static const _code = LintCode(
-    name: 'boti_method_check',
-    problemMessage: 'SUCESSO: O lint simples foi detectado neste método!',
+    name: 'check_method_name',
+    problemMessage:
+        '😨 Você usou a palavra [metodo] para dar nome ao método?! Você é biruleibe?! Você é pixuruco??',
   );
 
   @override
