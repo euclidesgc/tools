@@ -9,9 +9,9 @@ analyzer:
 #   rules:
 #     - camel_case_types
 
-custom_lint:
-  rules:
-    - avoid_emit_without_guard
+# custom_lint:
+#   rules:
+#     - avoid_emit_without_guard
 # analyzer:
 #   exclude:
 #     - path/to/excluded/files/**

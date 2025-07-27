@@ -57,10 +57,12 @@ class _EmitMethodVisitor extends RecursiveAstVisitor<void> {
           // Caso 2: dentro de if (!isClosed) { emit(...) }
           AstNode? parent = emitNode.parent;
           while (parent != null) {
-            if (parent is IfStatement &&
-                _isNotIsClosedGuard(parent, emitNode)) {
-              isGuarded = true;
-              break;
+            if (parent is Block && parent.parent is IfStatement) {
+              final ifStmt = parent.parent as IfStatement;
+              if (_isNotIsClosedGuard(ifStmt, emitNode, parent)) {
+                isGuarded = true;
+                break;
+              }
             }
             parent = parent.parent;
           }
@@ -111,15 +113,15 @@ bool _isIsClosedReturnGuard(IfStatement stmt) {
 }
 
 // Função auxiliar: if (!isClosed) { emit(...) }
-bool _isNotIsClosedGuard(IfStatement stmt, AstNode emitNode) {
+bool _isNotIsClosedGuard(IfStatement stmt, AstNode emitNode, Block block) {
   final cond = stmt.expression;
   if (cond is PrefixExpression &&
       cond.operator.lexeme == '!' &&
       cond.operand is SimpleIdentifier &&
       (cond.operand as SimpleIdentifier).name == 'isClosed') {
     final thenStmt = stmt.thenStatement;
-    if (thenStmt is Block &&
-        thenStmt.statements.any((s) => s == emitNode.parent)) {
+    if (thenStmt is Block && identical(thenStmt, block)) {
+      // O emit está realmente dentro do bloco do if (!isClosed)
       return true;
     }
   }
