@@ -11,7 +11,7 @@ analyzer:
 
 custom_lint:
   rules:
-    - no_emit_after_async_gap
+    - avoid_emit_without_guard
 # analyzer:
 #   exclude:
 #     - path/to/excluded/files/**
