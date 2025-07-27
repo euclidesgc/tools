@@ -4,12 +4,15 @@ version: 1.0.0
 publish_to: none
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.8.1 <4.0.0"
 
 dependencies:
+  # Dependências para construir a regra
   analyzer: ^6.4.1
   custom_lint_builder: ^0.6.4
+  # Dependência para que o analyzer entenda os tipos do BLoC
   bloc: any
 
 dev_dependencies:
+  # Lints para o próprio pacote
   lints: ^3.0.0

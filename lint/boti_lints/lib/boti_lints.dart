@@ -8,7 +8,7 @@ PluginBase createPlugin() => _BotiLints();
 class _BotiLints extends PluginBase {
   @override
   List<LintRule> getLintRules(CustomLintConfigs configs) => [
-        // Registra a nossa regra
-        const NoEmitAfterAsyncGap(),
-      ];
+    // Registra a nossa regra
+    const NoEmitAfterAsyncGap(),
+  ];
 }
