@@ -1,0 +1,108 @@
+[custom_lint] 2025-07-26T23:48:22.772046 /Users/colaborador/development/labs/tools/lint/boti_lints/lib/src/no_emit_after_async_gap.dart:9:8: Error: Error when reading 'packagepackage:bloc/bloc.dart': StandardFileSystem only supports file:* and data:* URIs
+[custom_lint] 2025-07-26T23:48:22.772046 import 'packagepackage:bloc/bloc.dart';
+[custom_lint] 2025-07-26T23:48:22.772046        ^
+[custom_lint] 2025-07-26T23:48:22.772046 /Users/colaborador/development/labs/tools/lint/boti_lints/lib/src/no_emit_after_async_gap.dart:25:5: Error: Type 'ErrorReporter' not found.
+[custom_lint] 2025-07-26T23:48:22.772046     ErrorReporter reporter,
+[custom_lint] 2025-07-26T23:48:22.772046     ^^^^^^^^^^^^^
+[custom_lint] 2025-07-26T23:48:22.772046 /Users/colaborador/development/labs/tools/lint/boti_lints/lib/src/no_emit_after_async_gap.dart:25:5: Error: 'ErrorReporter' isn't a type.
+[custom_lint] 2025-07-26T23:48:22.772046     ErrorReporter reporter,
+[custom_lint] 2025-07-26T23:48:22.772046     ^^^^^^^^^^^^^
+[custom_lint] 2025-07-26T23:48:22.772046 /Users/colaborador/development/labs/tools/lint/boti_lints/lib/src/no_emit_after_async_gap.dart:55:65: Error: The method 'getClass' isn't defined for the class 'TypeProvider'.
+[custom_lint] 2025-07-26T23:48:22.772046  - 'TypeProvider' is from 'package:analyzer/dart/element/type_provider.dart' ('/Users/colaborador/.pub-cache/hosted/pub.dev/analyzer-6.11.0/lib/dart/element/type_provider.dart').
+[custom_lint] 2025-07-26T23:48:22.772046 Try correcting the name to the name of an existing method, or defining a method named 'getClass'.
+[custom_lint] 2025-07-26T23:48:22.772046     final blocBaseElement = type.element?.library?.typeProvider.getClass(
+[custom_lint] 2025-07-26T23:48:22.772046                                                                 ^^^^^^^^
+[custom_lint] 2025-07-26T23:48:22.772046 /Users/colaborador/development/labs/tools/lint/boti_lints/lib/src/no_emit_after_async_gap.dart:63:26: Error: The getter 'allSupertypes' isn't defined for the class 'Element'.
+[custom_lint] 2025-07-26T23:48:22.772046  - 'Element' is from 'package:analyzer/dart/element/element.dart' ('/Users/colaborador/.pub-cache/hosted/pub.dev/analyzer-6.11.0/lib/dart/element/element.dart').
+[custom_lint] 2025-07-26T23:48:22.772046 Try correcting the name to the name of an existing getter, or defining a getter or field named 'allSupertypes'.
+[custom_lint] 2025-07-26T23:48:22.772046     return type.element!.allSupertypes.any(
+[custom_lint] 2025-07-26T23:48:22.772046                          ^^^^^^^^^^^^^
+[custom_lint] 2025-07-26T23:48:22.772046
+[custom_lint] 2025-07-26T23:48:22.772046
+Failed to start pluginsThe request analysis.setContextRoots failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+Bad state: Failed to start the plugins.
+at:
+#0      SocketCustomLintServerToClientChannel._checkInitializationFail.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:223:11)
+<asynchronous suspension>
+#1      Future.any.onValue (dart:async/future.dart:616:5)
+<asynchronous suspension>
+
+[custom_lint] 2025-07-26T23:50:25.422583 /Users/colaborador/development/labs/tools/lint/boti_lints/lib/src/no_emit_after_async_gap.dart:10:8: Error: Error when reading 'packagepackage:bloc/bloc.dart': StandardFileSystem only supports file:* and data:* URIs
+[custom_lint] 2025-07-26T23:50:25.422583 import 'packagepackage:bloc/bloc.dart';
+[custom_lint] 2025-07-26T23:50:25.422583        ^
+[custom_lint] 2025-07-26T23:50:25.422583 /Users/colaborador/development/labs/tools/lint/boti_lints/lib/src/no_emit_after_async_gap.dart:56:65: Error: The method 'getClass' isn't defined for the class 'TypeProvider'.
+[custom_lint] 2025-07-26T23:50:25.422583  - 'TypeProvider' is from 'package:analyzer/dart/element/type_provider.dart' ('/Users/colaborador/.pub-cache/hosted/pub.dev/analyzer-6.11.0/lib/dart/element/type_provider.dart').
+[custom_lint] 2025-07-26T23:50:25.422583 Try correcting the name to the name of an existing method, or defining a method named 'getClass'.
+[custom_lint] 2025-07-26T23:50:25.422583     final blocBaseElement = type.element?.library?.typeProvider.getClass(
+[custom_lint] 2025-07-26T23:50:25.422583                                                                 ^^^^^^^^
+[custom_lint] 2025-07-26T23:50:25.422583 /Users/colaborador/development/labs/tools/lint/boti_lints/lib/src/no_emit_after_async_gap.dart:64:26: Error: The getter 'allSupertypes' isn't defined for the class 'Element'.
+[custom_lint] 2025-07-26T23:50:25.422583  - 'Element' is from 'package:analyzer/dart/element/element.dart' ('/Users/colaborador/.pub-cache/hosted/pub.dev/analyzer-6.11.0/lib/dart/element/element.dart').
+[custom_lint] 2025-07-26T23:50:25.422583 Try correcting the name to the name of an existing getter, or defining a getter or field named 'allSupertypes'.
+[custom_lint] 2025-07-26T23:50:25.422583     return type.element!.allSupertypes.any(
+[custom_lint] 2025-07-26T23:50:25.422583                          ^^^^^^^^^^^^^
+[custom_lint] 2025-07-26T23:50:25.422583
+[custom_lint] 2025-07-26T23:50:25.422583
+Failed to start pluginsThe request analysis.setContextRoots failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+Bad state: Failed to start the plugins.
+at:
+#0      SocketCustomLintServerToClientChannel._checkInitializationFail.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:223:11)
+<asynchronous suspension>
+#1      Future.any.onValue (dart:async/future.dart:616:5)
+<asynchronous suspension>
+
+[custom_lint] 2025-07-26T23:55:15.480041 /Users/colaborador/development/labs/tools/lint/boti_lints/lib/src/no_emit_after_async_gap.dart:23:5: Error: Type 'ErrorReporter' not found.
+[custom_lint] 2025-07-26T23:55:15.480041     ErrorReporter reporter,
+[custom_lint] 2025-07-26T23:55:15.480041     ^^^^^^^^^^^^^
+[custom_lint] 2025-07-26T23:55:15.480041 /Users/colaborador/development/labs/tools/lint/boti_lints/lib/src/no_emit_after_async_gap.dart:23:5: Error: 'ErrorReporter' isn't a type.
+[custom_lint] 2025-07-26T23:55:15.480041     ErrorReporter reporter,
+[custom_lint] 2025-07-26T23:55:15.480041     ^^^^^^^^^^^^^
+[custom_lint] 2025-07-26T23:55:15.480041 /Users/colaborador/development/labs/tools/lint/boti_lints/lib/src/no_emit_after_async_gap.dart:65:34: Error: The getter 'typeProvider' isn't defined for the class 'CustomLintContext'.
+[custom_lint] 2025-07-26T23:55:15.480041  - 'CustomLintContext' is from 'package:custom_lint_core/src/lint_rule.dart' ('/Users/colaborador/.pub-cache/hosted/pub.dev/custom_lint_core-0.6.10/lib/src/lint_rule.dart').
+[custom_lint] 2025-07-26T23:55:15.480041 Try correcting the name to the name of an existing getter, or defining a getter or field named 'typeProvider'.
+[custom_lint] 2025-07-26T23:55:15.480041     final blocBaseType = context.typeProvider.getType(
+[custom_lint] 2025-07-26T23:55:15.480041                                  ^^^^^^^^^^^^
+[custom_lint] 2025-07-26T23:55:15.480041 /Users/colaborador/development/labs/tools/lint/boti_lints/lib/src/no_emit_after_async_gap.dart:76:24: Error: The method 'isSubtypeOf' isn't defined for the class 'InheritanceManager3'.
+[custom_lint] 2025-07-26T23:55:15.480041  - 'InheritanceManager3' is from 'package:analyzer/src/dart/element/inheritance_manager3.dart' ('/Users/colaborador/.pub-cache/hosted/pub.dev/analyzer-6.11.0/lib/src/dart/element/inheritance_manager3.dart').
+[custom_lint] 2025-07-26T23:55:15.480041 Try correcting the name to the name of an existing method, or defining a method named 'isSubtypeOf'.
+[custom_lint] 2025-07-26T23:55:15.480041     return inheritance.isSubtypeOf(type, blocBaseType);
+[custom_lint] 2025-07-26T23:55:15.480041                        ^^^^^^^^^^^
+[custom_lint] 2025-07-26T23:55:15.480041
+[custom_lint] 2025-07-26T23:55:15.480041
+Failed to start pluginsThe request analysis.setContextRoots failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+Bad state: Failed to start the plugins.
+at:
+#0      SocketCustomLintServerToClientChannel._checkInitializationFail.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:223:11)
+<asynchronous suspension>
+#1      Future.any.onValue (dart:async/future.dart:616:5)
+<asynchronous suspension>
+
+[custom_lint] 2025-07-26T23:58:24.893445 /Users/colaborador/development/labs/tools/lint/boti_lints/lib/src/no_emit_after_async_gap.dart:23:5: Error: Type 'ErrorReporter' not found.
+[custom_lint] 2025-07-26T23:58:24.893445     ErrorReporter reporter,
+[custom_lint] 2025-07-26T23:58:24.893445     ^^^^^^^^^^^^^
+[custom_lint] 2025-07-26T23:58:24.893445 /Users/colaborador/development/labs/tools/lint/boti_lints/lib/src/no_emit_after_async_gap.dart:23:5: Error: 'ErrorReporter' isn't a type.
+[custom_lint] 2025-07-26T23:58:24.893445     ErrorReporter reporter,
+[custom_lint] 2025-07-26T23:58:24.893445     ^^^^^^^^^^^^^
+[custom_lint] 2025-07-26T23:58:24.893445 /Users/colaborador/development/labs/tools/lint/boti_lints/lib/src/no_emit_after_async_gap.dart:65:34: Error: The getter 'typeProvider' isn't defined for the class 'CustomLintContext'.
+[custom_lint] 2025-07-26T23:58:24.893445  - 'CustomLintContext' is from 'package:custom_lint_core/src/lint_rule.dart' ('/Users/colaborador/.pub-cache/hosted/pub.dev/custom_lint_core-0.6.10/lib/src/lint_rule.dart').
+[custom_lint] 2025-07-26T23:58:24.893445 Try correcting the name to the name of an existing getter, or defining a getter or field named 'typeProvider'.
+[custom_lint] 2025-07-26T23:58:24.893445     final blocBaseType = context.typeProvider.getType(
+[custom_lint] 2025-07-26T23:58:24.893445                                  ^^^^^^^^^^^^
+[custom_lint] 2025-07-26T23:58:24.893445 /Users/colaborador/development/labs/tools/lint/boti_lints/lib/src/no_emit_after_async_gap.dart:76:24: Error: The method 'isSubtypeOf' isn't defined for the class 'InheritanceManager3'.
+[custom_lint] 2025-07-26T23:58:24.893445  - 'InheritanceManager3' is from 'package:analyzer/src/dart/element/inheritance_manager3.dart' ('/Users/colaborador/.pub-cache/hosted/pub.dev/analyzer-6.11.0/lib/src/dart/element/inheritance_manager3.dart').
+[custom_lint] 2025-07-26T23:58:24.893445 Try correcting the name to the name of an existing method, or defining a method named 'isSubtypeOf'.
+[custom_lint] 2025-07-26T23:58:24.893445     return inheritance.isSubtypeOf(type, blocBaseType);
+[custom_lint] 2025-07-26T23:58:24.893445                        ^^^^^^^^^^^
+[custom_lint] 2025-07-26T23:58:24.893445
+[custom_lint] 2025-07-26T23:58:24.893445
+Failed to start pluginsThe request analysis.setContextRoots failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+Bad state: Failed to start the plugins.
+at:
+#0      SocketCustomLintServerToClientChannel._checkInitializationFail.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:223:11)
+<asynchronous suspension>
+#1      Future.any.onValue (dart:async/future.dart:616:5)
+<asynchronous suspension>
+

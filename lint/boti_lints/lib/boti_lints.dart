@@ -1,8 +1,12 @@
-/// Support for doing something awesome.
-///
-/// More dartdocs go here.
-library;
+import 'package:custom_lint_builder/custom_lint_builder.dart';
 
-export 'src/boti_lints_base.dart';
+import 'src/no_emit_after_async_gap.dart';
 
-// TODO: Export any libraries intended for clients of this package.
+PluginBase createPlugin() => _BotiLints();
+
+class _BotiLints extends PluginBase {
+  @override
+  List<LintRule> getLintRules(CustomLintConfigs configs) => [
+    const NoEmitAfterAsyncGap(),
+  ];
+}
