@@ -2,5 +2,6 @@ analyzer:
   plugins:
     - custom_lint
 
-linter:
+custom_lint:
   rules:
+    - no_emit_after_async_gap
