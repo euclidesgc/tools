@@ -36,7 +36,7 @@ class NoEmitAfterAsyncGap extends DartLintRule {
       node.parent?.accept(asyncVisitor);
 
       if (asyncVisitor.foundAsyncGap && !asyncVisitor.isGuarded) {
-        reporter.reportErrorForNode(code, node);
+        reporter.atNode(node, code);
       }
     });
   }
