@@ -3,13 +3,13 @@ import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/error/listener.dart';
 import 'package:custom_lint_builder/custom_lint_builder.dart';
 
-class NoEmitAfterAsyncGap extends DartLintRule {
-  const NoEmitAfterAsyncGap() : super(code: _code);
+class AvoidEmitWithoutGuard extends DartLintRule {
+  const AvoidEmitWithoutGuard() : super(code: _code);
 
   static const _code = LintCode(
-    name: 'no_emit_after_async_gap',
+    name: 'avoid_emit_without_guard',
     problemMessage:
-        'Do not use emit() after await without checking if Cubit is closed. Add "if (isClosed) return;" before emit.',
+        'Do not use emit() after await without checking if Cubit is closed.\nAdd "if (isClosed) return;" before emit.',
   );
 
   @override
@@ -67,7 +67,7 @@ class _EmitMethodVisitor extends RecursiveAstVisitor<void> {
 
           // Só reporta se não estiver protegido e houver await antes
           if (!isGuarded && awaitIndexes.any((awaitIdx) => awaitIdx < i)) {
-            reporter.atNode(emitNode, NoEmitAfterAsyncGap._code);
+            reporter.atNode(emitNode, AvoidEmitWithoutGuard._code);
           }
         }),
       );
