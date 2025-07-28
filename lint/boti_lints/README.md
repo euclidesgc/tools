@@ -50,7 +50,7 @@ flutter pub run custom_lint
 
 ## Referências
 - [Documentação do custom_lint](https://pub.dev/packages/custom_lint)
-- [Discussão sobre seleção de regras no custom_lint](https://github.com/dart-code-checker/custom_lint/issues/99)
+- [Issues do custom_lint](https://github.com/invertase/dart_custom_lint/issues)
 - [bloc_lint](https://pub.dev/packages/bloc_lint)
 - [Discussão sobre emit após await e isClosed (issue avoid_async_emit)](https://github.com/felangel/bloc/issues/4490)
 
