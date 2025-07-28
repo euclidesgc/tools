@@ -41,7 +41,6 @@ flutter pub run custom_lint
 ### Limitações do custom_lint_builder
 - O `custom_lint_builder` não permite, atualmente, selecionar quais regras do plugin serão ativadas ou desativadas individualmente via `analysis_options.yaml`. Todas as regras do plugin são aplicadas automaticamente.
 - Isso pode causar conflitos ou incômodos caso você queira utilizar apenas uma regra específica.
-- Existem bugs conhecidos relacionados a esta limitação, como relatado em [custom_lint#issue/99](https://github.com/dart-code-checker/custom_lint/issues/99).
 
 ### Por que não usamos abordagem do bloc_lint?
 - O pacote [bloc_lint](https://pub.dev/packages/bloc_lint) utiliza uma abordagem diferente, implementando lints diretamente como um analyzer plugin, o que permite maior granularidade na configuração das regras.
