@@ -22,7 +22,7 @@ dependencies:
   boti_lints:
     git:
       url: https://github.com/euclidesgc/tools.git
-      path: tools/lint/boti_lints
+      path: lint/boti_lints
 ```
 
 2. In your project's `analysis_options.yaml` file, add:
@@ -83,7 +83,7 @@ dependencies:
   boti_lints:
     git:
       url: https://github.com/euclidesgc/tools.git
-      path: tools/lint/boti_lints
+      path: lint/boti_lints
 ```
 
 2. No arquivo `analysis_options.yaml` do seu projeto, adicione:
