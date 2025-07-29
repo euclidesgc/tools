@@ -9,7 +9,7 @@ class AvoidEmitWithoutGuard extends DartLintRule {
   static const _code = LintCode(
     name: 'avoid_emit_without_guard',
     problemMessage:
-        'Do not use emit() after await without checking if Cubit is closed.\nAdd "if (isClosed) return;" before emit.',
+        '⚠️ Do not use emit() after await without checking if Cubit is closed.\nAdd "if (isClosed) return;" before emit.',
   );
 
   @override
