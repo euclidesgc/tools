@@ -1,5 +1,5 @@
 name: meu_exemplo
-description: A sample command-line application to test my llint rules.
+description: A sample command-line application to test my lint rules.
 version: 1.0.0
 
 environment:
@@ -11,3 +11,4 @@ dependencies:
 dev_dependencies:
   boti_lints:
     path: ../../
+  custom_lint:
