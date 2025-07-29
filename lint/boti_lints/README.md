@@ -17,20 +17,23 @@ The main rule implemented is:
 
 1. Add the package to your project (`pubspec.yaml`):
 
+
 ```yaml
-dependencies:
+dev_dependencies:
   boti_lints:
     git:
       url: https://github.com/euclidesgc/tools.git
       path: lint/boti_lints
+  custom_lint:
 ```
 
 2. In your project's `analysis_options.yaml` file, add:
 
+
 ```yaml
 analyzer:
   plugins:
-    - boti_lints
+    - custom_lint
 ```
 
 3. Run the custom_lint command to analyze your project:
@@ -78,20 +81,23 @@ A regra principal implementada é:
 
 1. Adicione o pacote ao seu projeto (no `pubspec.yaml`):
 
+
 ```yaml
-dependencies:
+dev_dependencies:
   boti_lints:
     git:
       url: https://github.com/euclidesgc/tools.git
       path: lint/boti_lints
+  custom_lint:
 ```
 
 2. No arquivo `analysis_options.yaml` do seu projeto, adicione:
 
+
 ```yaml
 analyzer:
   plugins:
-    - boti_lints
+    - custom_lint
 ```
 
 3. Rode o comando do custom_lint para analisar seu projeto:
